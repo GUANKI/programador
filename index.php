@@ -1,4 +1,5 @@
 <?php
+require_once 'libraries/helper.php';
 require_once "Model/database.php";
 $controller = 'inicio';
 function showErrorPage($message) {
