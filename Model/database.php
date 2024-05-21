@@ -4,8 +4,8 @@ class Database
     private static $host = "localhost";
     private static $dbname = "programador";
     private static $charset = "utf8";
-    private static $username = "root"; // Nombre de usuario de la base de datos
-    private static $password = ""; // Contraseña de la base de datos
+    private static $username = "root"; 
+    private static $password = ""; 
 
     public static function Conectar()
     {
