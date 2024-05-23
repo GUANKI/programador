@@ -1,9 +1,11 @@
 <?php
 require_once 'libraries/helper.php';
 require_once "Model/database.php";
+
+
 $controller = 'inicio';
 function showErrorPage($message) {
-    require "View/error/error.php";
+    require "view/error/error.php";
 }
 session_start();
 
@@ -19,7 +21,6 @@ if (!isset($_REQUEST['c'])) {
     // Ruta del controlador
     $controllerFile = "Controller/$controller.controller.php";
 
-    // Verifica si el archivo del controlador existe
     if (file_exists($controllerFile)) {
         // Incluye el archivo del controlador
         require_once $controllerFile;

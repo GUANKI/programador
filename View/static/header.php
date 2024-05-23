@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,3 +10,11 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <title>Programador SENA</title>
 </head>
+<header>
+    <nav class="navbar sticky-bottom bg-body-tertiary py-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="?">INICIO</a>
+        </div>
+    </nav>
+</header>
+<main class="container">

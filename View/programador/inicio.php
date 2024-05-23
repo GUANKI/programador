@@ -4,7 +4,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth'
+    initialView: 'dayGridMonth',
+    locale: "es",
+
+    events: [{
+        title: "FICHA 2502636",
+        start: "2024-05-21"
+
+    }
+    ]
   });
   calendar.render();
 });

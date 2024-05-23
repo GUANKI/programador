@@ -1,15 +1,14 @@
 <?php
-// require_once "controller/inicio.controller.php";
-// require_once "controller/usuario.controller.php";
+require_once "controller/instructor.controller.php";
 function plantilla($ruta, $parametros=[]){
     extract($parametros);
     include_once "view/static/header.php";
     include_once "view/$ruta";
     include_once "view/static/footer.php";
 }
-function checksession(){
-    return isset($_SESSION["nombreUsuario"]) ? true : false;
-}
+// function checksession(){
+//     return isset($_SESSION["nombreUsuario"]) ? true : false;
+// }
 
 function redirect($link, $message = null) {
     if ($message) {
@@ -20,14 +19,14 @@ function redirect($link, $message = null) {
 }
 
 
-function obtenerIdClienteActual()
-    {
+// function obtenerIdClienteActual()
+//     {
 
 
 
-        if (isset($_SESSION['cliente_id'])) {
-            return $_SESSION['cliente_id'];
-        } else {
-            return null;
-        }
-    }
+//         if (isset($_SESSION['cliente_id'])) {
+//             return $_SESSION['cliente_id'];
+//         } else {
+//             return null;
+//         }
+//     }
