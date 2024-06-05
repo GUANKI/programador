@@ -1,43 +1,50 @@
-<div class="py-4 container">
+<div class="container">
+    <h1 class="my-4">Programar Instructores</h1>
+    <form id="search-form" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" id="ficha" name="ficha" placeholder="Ingrese el número de ficha">
+            <button type="button" class="btn btn-primary" id="search-button">Buscar</button>
+        </div>
+    </form>
+    <div id='calendar'></div>
+    <div class="my-4 text-center">
+        <a class="btn btn-success btn-lg mt-3" href="#">Programar</a>
+    </div>
+</div>
+
 <script>
+    $(document).ready(function() {
+    var selectedDates = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: "es",
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        selectable: true,
+        select: function(info) {
+            selectedDates.push(info.startStr);
+            alert("Tus días seleccionados son: " + selectedDates.join(", "));
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            var ficha = document.getElementById('ficha').value;
+            if (ficha) {
+                fetch(`?c=programar&a=getEvents&ficha=${ficha}`)
+                    .then(response => response.json())
+                    .then(events => successCallback(events))
+                    .catch(error => failureCallback(error));
+            }
+        }
+    });
+    calendar.render();
 
-    events: [{
-        title: "FICHA 2502636",
-        start: "2024-05-21"
-
-    }
-    ]
-  });
-  calendar.render();
+    $('#search-button').click(function() {
+        var ficha = $('#ficha').val();
+        if (ficha) {
+            calendar.refetchEvents();
+        } else {
+            alert("Ingrese un número de ficha.");
+        }
+    });
 });
 
 </script>
-            <form>
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-                </div>
-                <div class="mb-3">
-                    <select class="form-select" aria-label="Default select example">
-                        <option selected>Seleccione al Instructor</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
-                    </select>
-                </div>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                </div>
-                <div id='calendar'></div>
-
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </div>

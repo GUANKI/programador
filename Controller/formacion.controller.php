@@ -21,10 +21,10 @@ class FormacionController {
 
             if ($this->model->agregarFormacion($nombre, $nivel, $ambiente, $ficha, $horario)) {
                 // Redirigir o mostrar mensaje de éxito
-                echo "Formación agregada con éxito";
+                redirect("?c=formacion&a=inicio", "Exito-Formación Agregada Correctamente");
             } else {
                 // Redirigir o mostrar mensaje de error
-                echo "Error al agregar la formación.";
+                redirect("?c=formacion&a=inicio", "Error-Ficha ya Existe");
             }
         } else {
             // Mostrar formulario
