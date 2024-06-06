@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-05-2024 a las 22:54:48
--- Versión del servidor: 10.4.24-MariaDB
--- Versión de PHP: 7.4.29
+-- Tiempo de generación: 07-06-2024 a las 00:34:00
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `competencias` (
   `id` int(11) NOT NULL,
   `descripcion` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -47,7 +47,7 @@ CREATE TABLE `horarios` (
   `competencia_id` int(11) DEFAULT NULL,
   `resultado_id` int(11) DEFAULT NULL,
   `programa_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -61,7 +61,7 @@ CREATE TABLE `horas_acumuladas` (
   `mes` int(11) DEFAULT NULL,
   `año` int(11) DEFAULT NULL,
   `horas_acumuladas` int(11) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -72,32 +72,32 @@ CREATE TABLE `horas_acumuladas` (
 CREATE TABLE `instructores` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL,
-  `apellido` varchar(255) DEFAULT NULL,
-  `tipo_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `apellido` varchar(255) NOT NULL,
+  `tipo_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `instructores`
 --
 
 INSERT INTO `instructores` (`id`, `nombre`, `apellido`, `tipo_id`) VALUES
-(1, 'Julian Ricardo', 'Gasca Cuellar', 2),
-(2, 'Maria Eugenia', 'Florez Rocha', 1),
-(3, 'Juan Carlos', 'Lozada Ramirez', 2),
-(4, 'Marlio Fabian', 'Ospitia Thola', 1),
-(5, 'Juan Carlos', 'Lozada Ramirez', 2),
-(6, 'Marlio Fabian', 'Ospitia Thola', 1),
-(7, 'Eduardo Cesar', 'Timaná Salamanca', 2),
-(8, 'Jehison José', 'Ramos Fernandez', 2),
-(9, 'Smylle Leonardo', 'Alvarado Zamora', 1),
-(10, 'Julio ', 'Florez de la Hoz', 1),
-(11, 'Mairalejanra', 'Ramirez Cuenca', 1),
-(12, 'Yaddy Alejandra', 'Plazas Quibano', 1),
-(13, 'Adriana Marcela ', 'Alarcon Rojas', 2),
-(14, 'Arney ', 'Cardoso Perez', 2),
-(15, 'Francisco ', 'Chavarro Ramirez', 1),
-(16, 'Ricardo Javier', 'Vega Abreo', 2),
-(17, 'Dennys Adriana ', 'Quintero Sandoval', 2);
+(1, 'Julián ', 'Gasca Cuellar', 1),
+(2, 'Maria Eugenia', 'Florez Rocha', 2),
+(3, 'Gilberto', 'Murcia', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `programaciones`
+--
+
+CREATE TABLE `programaciones` (
+  `id` int(11) NOT NULL,
+  `ficha` varchar(255) NOT NULL,
+  `instructor_id` int(11) NOT NULL,
+  `start` datetime NOT NULL,
+  `end` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -107,32 +107,19 @@ INSERT INTO `instructores` (`id`, `nombre`, `apellido`, `tipo_id`) VALUES
 
 CREATE TABLE `programas_formacion` (
   `id` int(11) NOT NULL,
-  `nivel_formacion` varchar(255) NOT NULL,
   `nombre` varchar(255) NOT NULL,
-  `ambiente` varchar(255) NOT NULL,
-  `numero_ficha` varchar(255) NOT NULL,
-  `horario` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `numero_ficha` int(11) NOT NULL,
+  `nivel_formacion` varchar(255) NOT NULL,
+  `horario` varchar(255) DEFAULT NULL,
+  `ambiente` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `programas_formacion`
 --
 
-INSERT INTO `programas_formacion` (`id`, `nivel_formacion`, `nombre`, `ambiente`, `numero_ficha`, `horario`) VALUES
-(1, 'Tecnologo', 'ANALISIS Y DESARROLLO DE SOFTWARE', 'AMBIENTE 9', '2502636', 'Mañana'),
-(2, 'Complementario', 'EMPRENDIMIENTO INOVADOR', 'Vereda la Mesa', '2987652', '');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `resultados_aprendizaje`
---
-
-CREATE TABLE `resultados_aprendizaje` (
-  `id` int(11) NOT NULL,
-  `competencia_id` int(11) DEFAULT NULL,
-  `descripcion` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `programas_formacion` (`id`, `nombre`, `numero_ficha`, `nivel_formacion`, `horario`, `ambiente`) VALUES
+(1, 'ADSO', 2502636, 'Tecnologo', 'Mañana', 'AMBIENTE 9');
 
 -- --------------------------------------------------------
 
@@ -144,62 +131,39 @@ CREATE TABLE `tipos_instructores` (
   `id` int(11) NOT NULL,
   `descripcion` varchar(255) NOT NULL,
   `horas_maximas` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tipos_instructores`
 --
 
 INSERT INTO `tipos_instructores` (`id`, `descripcion`, `horas_maximas`) VALUES
-(1, 'Funcionario', 148),
-(2, 'Contratista ', 160);
+(1, 'Contrastista', 160),
+(2, 'Planta', 148);
 
 --
 -- Índices para tablas volcadas
 --
 
 --
--- Indices de la tabla `competencias`
---
-ALTER TABLE `competencias`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `horarios`
---
-ALTER TABLE `horarios`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `instructor_id` (`instructor_id`),
-  ADD KEY `competencia_id` (`competencia_id`),
-  ADD KEY `resultado_id` (`resultado_id`),
-  ADD KEY `programa_id` (`programa_id`);
-
---
--- Indices de la tabla `horas_acumuladas`
---
-ALTER TABLE `horas_acumuladas`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `instructor_id` (`instructor_id`);
-
---
 -- Indices de la tabla `instructores`
 --
 ALTER TABLE `instructores`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `tipo_id` (`tipo_id`);
+  ADD KEY `tipo_instructor_id` (`tipo_id`);
+
+--
+-- Indices de la tabla `programaciones`
+--
+ALTER TABLE `programaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `instructor_id` (`instructor_id`);
 
 --
 -- Indices de la tabla `programas_formacion`
 --
 ALTER TABLE `programas_formacion`
   ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `resultados_aprendizaje`
---
-ALTER TABLE `resultados_aprendizaje`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `competencia_id` (`competencia_id`);
 
 --
 -- Indices de la tabla `tipos_instructores`
@@ -212,40 +176,22 @@ ALTER TABLE `tipos_instructores`
 --
 
 --
--- AUTO_INCREMENT de la tabla `competencias`
---
-ALTER TABLE `competencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `horarios`
---
-ALTER TABLE `horarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `horas_acumuladas`
---
-ALTER TABLE `horas_acumuladas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `instructores`
 --
 ALTER TABLE `instructores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `programaciones`
+--
+ALTER TABLE `programaciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `programas_formacion`
 --
 ALTER TABLE `programas_formacion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de la tabla `resultados_aprendizaje`
---
-ALTER TABLE `resultados_aprendizaje`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `tipos_instructores`
@@ -258,31 +204,16 @@ ALTER TABLE `tipos_instructores`
 --
 
 --
--- Filtros para la tabla `horarios`
---
-ALTER TABLE `horarios`
-  ADD CONSTRAINT `horarios_ibfk_1` FOREIGN KEY (`instructor_id`) REFERENCES `instructores` (`id`),
-  ADD CONSTRAINT `horarios_ibfk_2` FOREIGN KEY (`competencia_id`) REFERENCES `competencias` (`id`),
-  ADD CONSTRAINT `horarios_ibfk_3` FOREIGN KEY (`resultado_id`) REFERENCES `resultados_aprendizaje` (`id`),
-  ADD CONSTRAINT `horarios_ibfk_4` FOREIGN KEY (`programa_id`) REFERENCES `programas_formacion` (`id`);
-
---
--- Filtros para la tabla `horas_acumuladas`
---
-ALTER TABLE `horas_acumuladas`
-  ADD CONSTRAINT `horas_acumuladas_ibfk_1` FOREIGN KEY (`instructor_id`) REFERENCES `instructores` (`id`);
-
---
 -- Filtros para la tabla `instructores`
 --
 ALTER TABLE `instructores`
-  ADD CONSTRAINT `instructores_ibfk_1` FOREIGN KEY (`tipo_id`) REFERENCES `tipos_instructores` (`id`);
+  ADD CONSTRAINT `instructores_ibfk_1` FOREIGN KEY (`tipo_id`) REFERENCES `tipos_instructores` (`id`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `resultados_aprendizaje`
+-- Filtros para la tabla `programaciones`
 --
-ALTER TABLE `resultados_aprendizaje`
-  ADD CONSTRAINT `resultados_aprendizaje_ibfk_1` FOREIGN KEY (`competencia_id`) REFERENCES `competencias` (`id`);
+ALTER TABLE `programaciones`
+  ADD CONSTRAINT `programaciones_ibfk_1` FOREIGN KEY (`instructor_id`) REFERENCES `instructores` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
