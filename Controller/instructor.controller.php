@@ -20,17 +20,37 @@ class InstructorController {
             $tipo_id = $_POST['tipo_id'];
 
             if ($this->model->agregarInstructor($nombre, $apellido, $tipo_id)) {
-                // Redirigir o mostrar mensaje de éxito
+                
                 redirect("?c=instructor&a=agregar", "Exito-Instructor Agregado");
-                // echo "Instructor agregado con éxito";
+                
             } else {
-                // Redirigir o mostrar mensaje de error
+                
                 redirect("?c=instructor&a=agregar", "Error-Instructor ya Existe");
             }
         } else {
-            // Mostrar formulario
+
             plantilla("crud/agregar_instructores.php");
         }
     
+    }
+
+    public function buscarinstructor(){
+        $db = Database::Conectar();
+        $popo = $_GET["search"];
+        $quety = $db->prepare("SELECT id, nombre, apellido FROM instructores WHERE nombre LIKE :search OR apellido LIKE :search");
+        $popo = "%".$popo."%";
+        $quety->bindParam(":search", $popo);
+        $quety->execute();
+        $data = $quety->fetchAll(PDO::FETCH_OBJ);
+        
+        $data = array_map(function ($d) {
+            return [
+                "id" => $d->id,
+                "nombre" => $d->nombre . " " . $d->apellido,
+            ];
+        }, $data);
+
+        echo (json_encode($data));
+        exit;
     }
 }

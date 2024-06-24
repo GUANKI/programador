@@ -10,6 +10,9 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <title>Programador SENA</title>
+
+    <link rel="stylesheet" href="Assets/css/happyfox.devs.css" />
+    <script src="Assets/js/happyfox.devs.js"></script>
 </head>
 <header>
     <nav class="navbar sticky-bottom bg-body-tertiary py-3">

@@ -1,0 +1,59 @@
+#select-selected {
+    position: absolute;
+    font-size: 10pt;
+    display: flex; 
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+#select-selected p {
+    margin: 0;
+    padding: 1px 5px;
+    color: white;
+    border-radius: 10px;
+    background-color: green;
+}
+
+#select-selected span {
+    padding: 0 2px;
+    cursor: pointer;
+}
+
+.select-input {
+    position: relative;
+    padding: 3px;
+    border: 1px solid lightgray;
+    box-shadow: 0 2px 5px 0px lightgray;
+}
+
+#select-input {
+    width: 100%;
+    height: min-content;
+    border: none;
+    resize: none;
+    border-radius: 5px;
+    outline: none;
+    overflow: hidden;
+}
+
+#select-list {
+    display: none;
+    position: absolute;
+    max-height: 500px;
+    overflow-y: scroll;
+    background-color: white;
+    width: 100%;
+    padding: 3px;
+    border: 1px solid lightgray;
+    box-shadow: 0 2px 5px 0px lightgray;
+}
+
+#select-list p {
+    cursor: pointer;
+    margin: 0;
+    padding: 2px 5px;
+}
+
+#select-list p:hover {
+    background-color: lightgray;
+}

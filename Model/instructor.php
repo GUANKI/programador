@@ -39,4 +39,7 @@ class InstructorModel {
             return $query->execute();
         }
     }
+
+
 }
+?>
