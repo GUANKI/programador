@@ -2,11 +2,13 @@
     .fc-highlight {
         background-color: #ffc107 !important;
     }
+
     #result p {
         cursor: pointer;
         padding: 5px;
         border-bottom: 1px solid #ccc;
     }
+
     #result p:hover {
         background-color: #f0f0f0;
     }
@@ -29,7 +31,7 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+     $(document).ready(function() {
         var selectedDates = [];
 
         var calendarEl = document.getElementById('calendar');
@@ -55,6 +57,7 @@
                 }
             }
         });
+
         calendar.render();
 
         $('#search-button').click(function() {
@@ -75,36 +78,60 @@
             $("#programarModal").modal("show");
         });
 
-        $('#programar-form').submit(function(event) {
-            event.preventDefault();
-            const { value } = document.querySelector("#select-value");
-            var resultadoAprendizaje = $('#resultadoAprendizaje').val();
-            var ficha = $('#ficha').val();
-
-            var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
-
-            var data = {
-                instructores: value,
-                resultado_aprendizaje: resultadoAprendizaje,
-                ficha: ficha,
-                selectedDates: dates
-            };
-
-            $.ajax({
-                url: '?c=programar&a=programarInstructor',
-                method: 'POST',
-                data: JSON.stringify(data),
-                contentType: "application/json",
-                success: function(response) {
-                    var result = JSON.parse(response);
-                    alert(result.message);
-                    if (result.message === 'Lo logre putos') {
-                        $('#programarModal').modal('hide');
-                        calendar.refetchEvents();
-                    }
-                }
-            });
+        $('input[name="jornada"]').change(function() {
+            if ($(this).val() === 'personalizada') {
+                $('#horarioPersonalizado').show();
+            } else {
+                $('#horarioPersonalizado').hide();
+            }
         });
+
+        $('#programar-form').submit(function(event) {
+    event.preventDefault();
+    const { value } = document.querySelector("#select-value");
+    var resultadoAprendizaje = $('#resultadoAprendizaje').val();
+    var ficha = $('#ficha').val();
+    var jornada = $('input[name="jornada"]:checked').val();
+    var horaInicio = $('#horaInicio').val();
+    var horaFin = $('#horaFin').val();
+
+    var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
+
+    var data = {
+        instructores: value,
+        resultado_aprendizaje: resultadoAprendizaje,
+        ficha: ficha,
+        selectedDates: dates,
+        jornada: jornada,
+        horaInicio: horaInicio,
+        horaFin: horaFin
+    };
+
+    $.ajax({
+        url: '?c=programar&a=programarInstructor',
+        method: 'POST',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        success: function(response) {
+            try {
+                var result = JSON.parse(response);
+                alert(result.message);
+                if (result.message === 'Instructor programado exitosamente.') {
+                    $('#programarModal').modal('hide');
+                    calendar.refetchEvents();
+                }
+            } catch (e) {
+                console.error('Error parsing JSON response:', e);
+                console.error('Response:', response);
+                alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('AJAX error:', textStatus, errorThrown);
+            alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+        }
+    });
+});
     });
 </script>
 
@@ -127,20 +154,43 @@
                         <div class="select-container">
                             <div class="select-wrapper">
                                 <div class="select-input">
-                                    <div id="select-selected">
-
-                                    </div>
+                                    <div id="select-selected"></div>
                                     <textarea id="select-input"></textarea>
                                 </div>
-                                <div id="select-list">
-
-                                </div>
+                                <div id="select-list"></div>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="resultadoAprendizaje" class="form-label">Resultado de Aprendizaje</label>
                         <input type="text" class="form-control" id="resultadoAprendizaje">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seleccione Jornada:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="jornada" id="jornadaMañana" value="mañana">
+                                <label class="form-check-label" for="jornadaMañana">Mañana (06:00 - 11:59)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="jornada" id="jornadaTarde" value="tarde">
+                                <label class="form-check-label" for="jornadaTarde">Tarde (12:00 - 17:59)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="jornada" id="jornadaNoche" value="noche">
+                                <label class="form-check-label" for="jornadaNoche">Noche (18:00 - 23:00)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="jornada" id="jornadaPersonalizada" value="personalizada">
+                                <label class="form-check-label" for="jornadaPersonalizada">Personalizada</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="horarioPersonalizado" style="display:none;">
+                        <label for="horaInicio" class="form-label">Hora de Inicio:</label>
+                        <input type="time" class="form-control" id="horaInicio">
+                        <label for="horaFin" class="form-label">Hora de Fin:</label>
+                        <input type="time" class="form-control" id="horaFin">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CERRAR</button>
