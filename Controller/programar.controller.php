@@ -3,7 +3,10 @@ class ProgramarController {
     public function index() {
         plantilla("programador/inicio.php");
     }
-    
+    public function indexInstructor(){
+        plantilla("programador/instructor.php");
+    }
+    //POR FICHA
     public function getEvents() {
         $ficha = $_GET['ficha'];
         $db = Database::Conectar();
@@ -14,19 +17,24 @@ class ProgramarController {
         $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-        // Formatear los eventos para que incluyan la propiedad 'title'
+        // Formatear los eventos para que incluyan la propiedad 'title' y las extendedProps
         $formattedEvents = [];
         foreach ($events as $event) {
             $formattedEvents[] = [
-                'title' => $event['instructor_nombre'], // Puedes cambiar esto a cualquier información que quieras mostrar
+                'title' => $event['instructor_nombre'],
                 'start' => $event['start'],
-                'end' => $event['end']
+                'end' => $event['end'],
+                'extendedProps' => [
+                    'ficha' => $event['ficha'],
+                    'resultado_aprendizaje' => $event['resultado_aprendizaje'],
+                    'instructor_nombre' => $event['instructor_nombre']
+                ]
             ];
         }
     
         echo json_encode($formattedEvents);
     }
-
+    
     public function programarInstructor() {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
@@ -112,6 +120,38 @@ class ProgramarController {
             echo json_encode(['message' => 'Ocurrió un error: ' . $e->getMessage()]);
         }
     }
+
+
+    //POR INSTRUCTOR
+
+    public function getInstructorEvents() {
+        $instructor = $_GET['instructor'];
+        $db = Database::Conectar();
+        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre, i.apellido as instructor_apellido FROM programaciones p 
+                              JOIN instructores i ON p.instructor_id = i.id 
+                              WHERE CONCAT(i.nombre, ' ', i.apellido) LIKE :instructor");
+        $instructor = "%".$instructor."%";
+        $stmt->bindParam(':instructor', $instructor);
+        $stmt->execute();
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $formattedEvents = [];
+        foreach ($events as $event) {
+            $formattedEvents[] = [
+                'title' => $event['ficha'],
+                'start' => $event['start'],
+                'end' => $event['end'],
+                'extendedProps' => [
+                    'ficha' => $event['ficha'],
+                    'resultadoAprendizaje' => $event['resultado_aprendizaje'],
+                    'instructor' => $event['instructor_nombre'] . ' ' . $event['instructor_apellido']
+                ]
+            ];
+        }
+    
+        echo json_encode($formattedEvents);
+    }
+    
     
 }    
 ?>
