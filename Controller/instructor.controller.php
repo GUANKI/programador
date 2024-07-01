@@ -53,4 +53,26 @@ class InstructorController {
         echo (json_encode($data));
         exit;
     }
+
+    public function buscarinstructor2(){
+        $db = Database::Conectar();
+        $search = $_GET["search"];
+        $query = $db->prepare("SELECT id, nombre, apellido FROM instructores WHERE nombre LIKE :search OR apellido LIKE :search");
+        $search = "%".$search."%";
+        $query->bindParam(":search", $search);
+        $query->execute();
+        $data = $query->fetchAll(PDO::FETCH_OBJ);
+        
+        $data = array_map(function ($d) {
+            return [
+                "id" => $d->id,
+                "nombre" => $d->nombre . " " . $d->apellido,
+            ];
+        }, $data);
+    
+        echo json_encode($data);
+        exit;
+    }
+    
+    
 }

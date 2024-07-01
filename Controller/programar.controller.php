@@ -152,6 +152,33 @@ class ProgramarController {
         echo json_encode($formattedEvents);
     }
     
+    public function GetEvents2() {
+        $instructorId = $_GET['instructorId'];
+        $db = Database::Conectar();
+        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre FROM programaciones p 
+                              JOIN instructores i ON p.instructor_id = i.id 
+                              WHERE p.instructor_id = :instructorId");
+        $stmt->bindParam(':instructorId', $instructorId);
+        $stmt->execute();
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $formattedEvents = [];
+        foreach ($events as $event) {
+            $formattedEvents[] = [
+                'title' => $event['ficha'] . " - " . $event['resultado_aprendizaje'],
+                'start' => $event['start'],
+                'end' => $event['end'],
+                'ficha' => $event['ficha'],
+                'resultadoAprendizaje' => $event['resultado_aprendizaje'],
+                'horaInicio' => date('H:i', strtotime($event['start'])),
+                'horaFin' => date('H:i', strtotime($event['end']))
+            ];
+        }
+    
+        echo json_encode($formattedEvents);
+    }
+    
+    
     
 }    
 ?>

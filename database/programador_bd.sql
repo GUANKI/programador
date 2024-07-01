@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-06-2024 a las 22:05:05
+-- Tiempo de generación: 01-07-2024 a las 07:48:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -83,7 +83,11 @@ CREATE TABLE `instructores` (
 INSERT INTO `instructores` (`id`, `nombre`, `apellido`, `tipo_id`) VALUES
 (1, 'Julián ', 'Gasca Cuellar', 1),
 (2, 'Maria Eugenia', 'Florez Rocha', 2),
-(3, 'Gilberto', 'Murcia', 1);
+(3, 'Gilberto', 'Murcia', 1),
+(4, 'Julian Felipe', 'Pedroza', 1),
+(5, 'Mairalejandra', 'Ramirez Cuenca', 2),
+(6, 'Dennys Adriana ', 'Quintero Sandoval', 1),
+(7, 'Adriana Marcela ', 'Alarcón Rojas', 1);
 
 -- --------------------------------------------------------
 
@@ -116,7 +120,28 @@ INSERT INTO `programaciones` (`id`, `ficha`, `instructor_id`, `start`, `end`, `r
 (8, '2502663', 3, '2024-06-17 12:00:00', '2024-06-17 17:59:59', 'Ejemplo', NULL),
 (9, '2502663', 3, '2024-06-18 12:00:00', '2024-06-18 17:59:59', 'Ejemplo', NULL),
 (10, '2502663', 3, '2024-06-18 12:00:00', '2024-06-18 17:59:59', 'Ejemplo', NULL),
-(11, '2502663', 3, '2024-06-18 12:00:00', '2024-06-18 17:59:59', 'Ejemplo', NULL);
+(11, '2502663', 3, '2024-06-18 12:00:00', '2024-06-18 17:59:59', 'Ejemplo', NULL),
+(12, '2502636', 2, '2024-06-24 06:00:00', '2024-06-24 11:59:59', 'OLA MUNDO SIN H', NULL),
+(13, '2502636', 2, '2024-06-25 06:00:00', '2024-06-25 11:59:59', 'OLA MUNDO SIN H', NULL),
+(14, '123456', 1, '2024-06-11 06:00:00', '2024-06-11 11:59:59', 'ejemplo 3', NULL),
+(15, '123456', 1, '2024-06-12 06:00:00', '2024-06-12 11:59:59', 'ejemplo 3', NULL),
+(16, '2502636', 6, '2024-06-19 06:00:00', '2024-06-19 11:59:59', 'Ejemplo de resultado', NULL),
+(17, '2502636', 1, '2024-06-26 06:00:00', '2024-06-26 11:59:59', 'AQUI VA EL NOMBRE DEL RESULTADO DE PARENDIZAJE QUE VANA DESARROLLAR LOS INSTRUCTORES', NULL),
+(18, '2502636', 6, '2024-06-26 06:00:00', '2024-06-26 11:59:59', 'AQUI VA EL NOMBRE DEL RESULTADO DE PARENDIZAJE QUE VANA DESARROLLAR LOS INSTRUCTORES', NULL),
+(19, '2502636', 7, '2024-06-27 06:00:00', '2024-06-27 11:59:59', 'Ejemplo', NULL),
+(20, '2502636', 4, '2024-06-27 12:00:00', '2024-06-27 17:59:59', 'Ejemplo222', NULL),
+(21, '2502636', 4, '2024-06-27 12:00:00', '2024-06-27 17:59:59', 'Ejemplo222', NULL),
+(22, '2502636', 7, '2024-06-27 18:00:00', '2024-06-27 23:00:00', 'XYZ', NULL),
+(23, '2502636', 7, '2024-06-27 23:15:00', '2024-06-27 01:20:00', '', NULL),
+(24, '2502636', 4, '2024-06-11 06:00:00', '2024-06-11 11:59:59', 'Ejemplo de resultado 2', NULL),
+(25, '2502636', 1, '2024-06-13 18:00:00', '2024-06-13 23:00:00', 'ejemplo otro otro', NULL),
+(26, '2502636', 7, '2024-06-14 06:00:00', '2024-06-14 11:59:59', 'dsdasd', NULL),
+(27, '2502636', 5, '2024-06-15 06:00:00', '2024-06-15 11:59:59', 'XYZ', NULL),
+(28, '2502636', 7, '2024-06-12 06:00:00', '2024-06-12 11:59:59', 'XYZ', NULL),
+(29, '2502636', 5, '2024-06-11 06:00:00', '2024-06-11 11:59:59', 'dsadasdas', NULL),
+(30, '2502636', 6, '2024-06-22 06:00:00', '2024-06-22 11:59:59', 'XYZ', NULL),
+(31, '2502636', 5, '2024-06-10 06:00:00', '2024-06-10 11:59:59', 'ejemplooooo', NULL),
+(32, '2502636', 3, '2024-06-23 06:00:00', '2024-06-23 11:59:59', 'qqqqq', NULL);
 
 -- --------------------------------------------------------
 
@@ -161,6 +186,29 @@ INSERT INTO `tipos_instructores` (`id`, `descripcion`, `horas_maximas`) VALUES
 (1, 'Contrastista', 160),
 (2, 'Planta', 148);
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `apellido` varchar(255) NOT NULL,
+  `cedula` int(11) NOT NULL,
+  `contraseña` varchar(255) NOT NULL,
+  `privilegio` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `cedula`, `contraseña`, `privilegio`) VALUES
+(1, 'administrador', 'administrador', 1080041730, 'paloma20', 1),
+(3, 'instructur', 'instructor', 1014480735, 'paloma20', 2);
+
 --
 -- Índices para tablas volcadas
 --
@@ -193,6 +241,12 @@ ALTER TABLE `tipos_instructores`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -200,13 +254,13 @@ ALTER TABLE `tipos_instructores`
 -- AUTO_INCREMENT de la tabla `instructores`
 --
 ALTER TABLE `instructores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `programaciones`
 --
 ALTER TABLE `programaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `programas_formacion`
@@ -219,6 +273,12 @@ ALTER TABLE `programas_formacion`
 --
 ALTER TABLE `tipos_instructores`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas

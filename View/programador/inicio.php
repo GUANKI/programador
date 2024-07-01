@@ -1,19 +1,20 @@
 <style>
-    .fc-highlight {
-        background-color: #ffc107 !important;
-    }
+        .fc-highlight {
+            background-color: #ffc107 !important;
+        }
 
-    #result p {
-        cursor: pointer;
-        padding: 5px;
-        border-bottom: 1px solid #ccc;
-    }
+        #result p {
+            cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
 
-    #result p:hover {
-        background-color: #f0f0f0;
-    }
-</style>
-
+        #result p:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
 <div class="container">
     <h1 class="my-4">Programar Instructores</h1>
     <form id="search-form" class="mb-4">
@@ -30,132 +31,134 @@
     </div>
 </div>
 
+<script src="path/to/jquery.min.js"></script>
+<script src="path/to/bootstrap.bundle.min.js"></script>
+<script src="path/to/fullcalendar/main.js"></script>
 <script>
-     $(document).ready(function() {
-    var selectedDates = [];
+    $(document).ready(function() {
+        var selectedDates = [];
 
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es',
-        selectable: true,
-        select: function(info) {
-            selectedDates.push(info.start);
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            selectable: true,
+            select: function(info) {
+                selectedDates.push(info.start);
+                var formattedDates = selectedDates.map(date => date.toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'long'
+                }));
+            },
+            events: function(fetchInfo, successCallback, failureCallback) {
+                var ficha = document.getElementById('ficha').value;
+                if (ficha) {
+                    fetch(`?c=programar&a=getEvents&ficha=${ficha}`)
+                        .then(response => response.json())
+                        .then(events => successCallback(events))
+                        .catch(error => failureCallback(error));
+                }
+            },
+            eventClick: function(info) {
+                var event = info.event;
+                var extendedProps = event.extendedProps;
+
+                $('#infoFecha').text(event.start.toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }));
+                $('#infoHoras').text(event.start.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) + ' - ' + event.end.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }));
+                $('#infoFicha').text(extendedProps.ficha);
+                $('#infoResultado').text(extendedProps.resultado_aprendizaje);
+                $('#infoInstructor').text(extendedProps.instructor_nombre);
+
+                $('#infoModal').modal('show');
+            }
+        });
+
+        calendar.render();
+
+        $('#search-button').click(function() {
+            var ficha = $('#ficha').val();
+            if (ficha) {
+                calendar.refetchEvents();
+            } else {
+                alert("Ingrese un número de ficha.");
+            }
+        });
+
+        $("#btn-programar").click(function() {
             var formattedDates = selectedDates.map(date => date.toLocaleDateString('es-ES', {
                 day: 'numeric',
                 month: 'long'
             }));
-        },
-        events: function(fetchInfo, successCallback, failureCallback) {
-            var ficha = document.getElementById('ficha').value;
-            if (ficha) {
-                fetch(`?c=programar&a=getEvents&ficha=${ficha}`)
-                    .then(response => response.json())
-                    .then(events => successCallback(events))
-                    .catch(error => failureCallback(error));
-            }
-        },
-        eventClick: function(info) {
-            var event = info.event;
-            var extendedProps = event.extendedProps;
+            $("#dias_a_programar").html(formattedDates.join("<br>"));
+            $("#programarModal").modal("show");
+        });
 
-            $('#infoFecha').text(event.start.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }));
-            $('#infoHoras').text(event.start.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit'
-            }) + ' - ' + event.end.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit'
-            }));
-            $('#infoFicha').text(extendedProps.ficha);
-            $('#infoResultado').text(extendedProps.resultado_aprendizaje);
-            $('#infoInstructor').text(extendedProps.instructor_nombre);
-
-            $('#infoModal').modal('show');
-        }
-    });
-
-    calendar.render();
-
-    $('#search-button').click(function() {
-        var ficha = $('#ficha').val();
-        if (ficha) {
-            calendar.refetchEvents();
-        } else {
-            alert("Ingrese un número de ficha.");
-        }
-    });
-
-    $("#btn-programar").click(function() {
-        var formattedDates = selectedDates.map(date => date.toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long'
-        }));
-        $("#dias_a_programar").html(formattedDates.join("<br>"));
-        $("#programarModal").modal("show");
-    });
-
-    // Mostrar/ocultar campos de horarios personalizados
-    $('input[name="jornada"]').change(function() {
-        if ($(this).val() === 'personalizada') {
-            $('#horarios-personalizados').removeClass('d-none');
-        } else {
-            $('#horarios-personalizados').addClass('d-none');
-        }
-    });
-
-    $('#programar-form').submit(function(event) {
-        event.preventDefault();
-        const { value } = document.querySelector("#select-value");
-        var resultadoAprendizaje = $('#resultadoAprendizaje').val();
-        var ficha = $('#ficha').val();
-        var jornada = $('input[name="jornada"]:checked').val();
-        var horaInicio = $('#horaInicio').val();
-        var horaFin = $('#horaFin').val();
-
-        var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
-
-        var data = {
-            instructores: value,
-            resultado_aprendizaje: resultadoAprendizaje,
-            ficha: ficha,
-            selectedDates: dates,
-            jornada: jornada,
-            horaInicio: horaInicio,
-            horaFin: horaFin
-        };
-
-        $.ajax({
-            url: '?c=programar&a=programarInstructor',
-            method: 'POST',
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            success: function(response) {
-                try {
-                    var result = JSON.parse(response);
-                    alert(result.message);
-                    if (result.message === 'Instructor programado exitosamente.') {
-                        $('#programarModal').modal('hide');
-                        calendar.refetchEvents();
-                    }
-                } catch (e) {
-                    console.error('Error parsing JSON response:', e);
-                    console.error('Response:', response);
-                    alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error('AJAX error:', textStatus, errorThrown);
-                alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+        // Mostrar/ocultar campos de horarios personalizados
+        $('input[name="jornada"]').change(function() {
+            if ($(this).val() === 'personalizada') {
+                $('#horarioPersonalizado').show();
+            } else {
+                $('#horarioPersonalizado').hide();
             }
         });
-    });
-});
 
+        $('#programar-form').submit(function(event) {
+            event.preventDefault();
+            const { value } = document.querySelector("#select-value");
+            var resultadoAprendizaje = $('#resultadoAprendizaje').val();
+            var ficha = $('#ficha').val();
+            var jornada = $('input[name="jornada"]:checked').val();
+            var horaInicio = $('#horaInicio').val();
+            var horaFin = $('#horaFin').val();
+
+            var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
+
+            var data = {
+                instructores: value,
+                resultado_aprendizaje: resultadoAprendizaje,
+                ficha: ficha,
+                selectedDates: dates,
+                jornada: jornada,
+                horaInicio: horaInicio,
+                horaFin: horaFin
+            };
+
+            $.ajax({
+                url: '?c=programar&a=programarInstructor',
+                method: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function(response) {
+                    try {
+                        var result = JSON.parse(response);
+                        alert(result.message);
+                        if (result.message === 'Instructor programado exitosamente.') {
+                            $('#programarModal').modal('hide');
+                            calendar.refetchEvents();
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON response:', e);
+                        console.error('Response:', response);
+                        alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('AJAX error:', textStatus, errorThrown);
+                    alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+                }
+            });
+        });
+    });
 </script>
 
 <!-- Modal -->
