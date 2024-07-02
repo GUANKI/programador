@@ -1,5 +1,6 @@
+<!-- View/admin/agregar_usuario.php -->
 <section class="h-100 gradient-form" style="background-color: #eee;">
-    <div class="container py-5 h-100 d-flex flex-column justify-content-between">
+    <div class="container py-2 h-100 d-flex flex-column justify-content-between">
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-xl-10">
                 <div class="card rounded-3 text-black">
@@ -13,23 +14,24 @@
                                 <form method="POST" action="?c=usuario&a=agregar_usuario">
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="nombre">Nombre</label>
-                                        <input type="text" id="nombre" name="nombre" class="form-control" required/>
+                                        <input type="text" id="nombre" name="nombre" class="form-control" required />
                                     </div>
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="apellido">Apellido</label>
-                                        <input type="text" id="apellido" name="apellido" class="form-control" required/>
+                                        <input type="text" id="apellido" name="apellido" class="form-control" required />
                                     </div>
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="cedula">Cédula</label>
-                                        <input type="text" id="cedula" name="cedula" class="form-control" required/>
+                                        <input type="number" id="cedula" name="cedula" class="form-control" required />
                                     </div>
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="contraseña">Contraseña</label>
-                                        <input type="password" id="contraseña" name="contraseña" class="form-control" required/>
+                                        <input type="password" id="contraseña" name="contrasena" class="form-control" required />
                                     </div>
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="privilegio">Privilegio</label>
-                                        <select id="privilegio" name="privilegio" class="form-control" required>
+                                        <select id="privilegio" name="privilegio" class=" form-select" required>
+                                            <option selected>Elija una opción del menú</option>
                                             <option value="1">Administrador</option>
                                             <option value="2">Instructor</option>
                                         </select>

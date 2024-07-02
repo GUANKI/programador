@@ -178,7 +178,36 @@ class ProgramarController {
         echo json_encode($formattedEvents);
     }
     
-    
-    
+    public function eliminarEvento() {
+        $id = $_POST['id'];
+        $db = Database::Conectar();
+        $sql = "DELETE FROM programaciones WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            echo json_encode(['message' => 'Evento eliminado exitosamente.']);
+        } else {
+            echo json_encode(['message' => 'Error al eliminar el evento.']);
+        }
+    }
+
+    public function modificarEvento() {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'];
+        $resultado = $data['resultado_aprendizaje'];
+        $instructor = $data['instructor_nombre'];
+
+        $db = Database::Conectar();
+        $sql = "UPDATE programaciones SET resultado_aprendizaje = :resultado, instructor_nombre = :instructor WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':resultado', $resultado, PDO::PARAM_STR);
+        $stmt->bindParam(':instructor', $instructor, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            echo json_encode(['message' => 'Evento modificado exitosamente.']);
+        } else {
+            echo json_encode(['message' => 'Error al modificar el evento.']);
+        }
+    }
 }    
 ?>

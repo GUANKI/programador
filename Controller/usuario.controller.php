@@ -1,8 +1,12 @@
 <?php
+require_once "model/usario.php";
 
 class UsuarioController {
+    private $model;
 
-    
+    public function __construct() {
+        $this->model = new UsuarioModel();
+    }
 
     public function index(){
         plantilla("sesion/login.php");
@@ -14,23 +18,22 @@ class UsuarioController {
             $password = $_POST['password'];
     
             $db = Database::Conectar();
-            $stmt = $db->prepare("SELECT * FROM usuarios WHERE cedula = :email AND contraseña = :password");
+            $stmt = $db->prepare("SELECT * FROM usuarios WHERE cedula = :email");
             $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $password);
             $stmt->execute();
     
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($user) {
+            if ($user && password_verify($password, $user['contrasena'])) {
                 session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_privilege'] = $user['privilegio'];
     
                 // Redireccionar según el privilegio del usuario
                 if ($user['privilegio'] == 1) {
-                    redirect("?c=usuario&a=adminview", "Exito-Sesión Iniciada");
+                    header("Location: ?c=usuario&a=adminview");
                 } else {
-                    redirect("?c=programar&a=indexInstructor", "Exito-Sesión Iniciada");
+                    header("Location: ?c=programar&a=indexInstructor");
                 }
                 exit; // Terminar la ejecución después de redirigir
             } else {
@@ -43,6 +46,7 @@ class UsuarioController {
             plantilla("sesion/login.php");
         }
     }
+    
     
     
     
@@ -64,31 +68,27 @@ class UsuarioController {
             $nombre = $_POST['nombre'];
             $apellido = $_POST['apellido'];
             $cedula = $_POST['cedula'];
-            $contraseña = $_POST['contraseña'];
+            $contraseña = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
             $privilegio = $_POST['privilegio'];
-    
             $db = Database::Conectar();
-            $stmt = $db->prepare("INSERT INTO usuarios (nombre, apellido, cedula, contraseña, privilegio) VALUES (:nombre, :apellido, :cedula, :contraseña, :privilegio)");
+            $stmt = $db->prepare("INSERT INTO usuarios (nombre, apellido, cedula, contrasena, privilegio) VALUES (:nombre, :apellido, :cedula, :contrasena, :privilegio)");
             $stmt->bindParam(':nombre', $nombre);
             $stmt->bindParam(':apellido', $apellido);
             $stmt->bindParam(':cedula', $cedula);
-            $stmt->bindParam(':contraseña', $contraseña);
+            $stmt->bindParam(':contrasena', $contraseña);
             $stmt->bindParam(':privilegio', $privilegio);
-    
-            if ($stmt->execute()) {
-                echo "<script>alert('Usuario agregado exitosamente');</script>";
+
+            if($stmt->execute()) {
+                redirect("?c=usuario&a=agregar_usuario", "Exito-Usuario Agregado Correctamente a la Base de datos");
             } else {
-                echo "<script>alert('Error al agregar usuario');</script>";
+                redirect("?c=usuario&a=agregar_usuario", "Error-Usuario No Agregado Correctamente a la Base de datos");
             }
-    
-            // Redirigir a la vista de administración después de agregar el usuario
-            header("Location: ?c=admin&a=index");
-            exit;
         } else {
-            // Mostrar el formulario si no se ha enviado
             plantilla("admin/agregar_usuario.php");
         }
     }
+    
+
     
 }
 

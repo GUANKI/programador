@@ -3,7 +3,7 @@
 if (isset($_COOKIE["notificacion"])) {
   [$var1,$var2] = explode("-",$_COOKIE["notificacion"])
 ?>
-  <div role="alert" aria-live="assertive" aria-atomic="true" class="toast show position-fixed end-0 bottom-0 m-3" data-bs-autohide="false">
+  <div style="z-index: 1000;" role="alert" aria-live="assertive" aria-atomic="true" class="toast show position-fixed end-0 bottom-0 m-3" data-bs-autohide="false">
     <div class="toast-header <?php if($var1 == "Error"){
       echo "bg-danger";
     }else if ($var1 == "Exito"){
