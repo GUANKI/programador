@@ -58,6 +58,41 @@ class UsuarioController {
     public function adminview(){
         plantilla("admin/inicio.php");
     }
+
+    public function agregar_usuario() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = $_POST['nombre'];
+            $apellido = $_POST['apellido'];
+            $cedula = $_POST['cedula'];
+            $contraseña = $_POST['contraseña'];
+            $privilegio = $_POST['privilegio'];
+    
+            $db = Database::Conectar();
+            $stmt = $db->prepare("INSERT INTO usuarios (nombre, apellido, cedula, contraseña, privilegio) VALUES (:nombre, :apellido, :cedula, :contraseña, :privilegio)");
+            $stmt->bindParam(':nombre', $nombre);
+            $stmt->bindParam(':apellido', $apellido);
+            $stmt->bindParam(':cedula', $cedula);
+            $stmt->bindParam(':contraseña', $contraseña);
+            $stmt->bindParam(':privilegio', $privilegio);
+    
+            if ($stmt->execute()) {
+                echo "<script>alert('Usuario agregado exitosamente');</script>";
+            } else {
+                echo "<script>alert('Error al agregar usuario');</script>";
+            }
+    
+            // Redirigir a la vista de administración después de agregar el usuario
+            header("Location: ?c=admin&a=index");
+            exit;
+        } else {
+            // Mostrar el formulario si no se ha enviado
+            plantilla("admin/agregar_usuario.php");
+        }
+    }
+    
 }
+
+
+
 
 ?>

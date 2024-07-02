@@ -58,7 +58,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="carousel-container">
       <h2>CONSULTA LA PROGRAMACIÓN</h2>
       <p>Consulta la programación de instructores de CDATH fácilmente. Accede a horarios actualizados de manera rapida.</p>
-      <a href="about.html" class="btn-get-started">Ver Programación</a>
+      <a href="<?php echo $programarLink ?>" class="btn-get-started">Ver Programación</a>
     </div>
   </div><!-- End Carousel Item -->
 

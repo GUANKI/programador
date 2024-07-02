@@ -21,7 +21,7 @@
               <div class="icon">
                 <i class="bi bi-broadcast"></i>
               </div>
-              <a href="#" class="stretched-link">
+              <a href="?c=programar&a=indexInstructor" class="stretched-link">
                 <h3>Consultar Programación por Instructor</h3>
               </a>
               <p>Visulizar la programación del instructor seleccionado</p>
@@ -33,7 +33,7 @@
               <div class="icon">
                 <i class="bi bi-easel"></i>
               </div>
-              <a href="#" class="stretched-link">
+              <a href="?c=instructor&a=agregar" class="stretched-link">
                 <h3>Añadir Instructores</h3>
               </a>
               <p>Agregar nuevos instructores a la base de datos para tenerlo habilitado para programarlo</p>
@@ -46,10 +46,10 @@
                 <i class="bi bi-bounding-box-circles"></i>
               </div>
               <a href="#" class="stretched-link">
-                <h3>Añadir Administrador</h3>
+                <h3>Añadir Usuarios</h3>
               </a>
-              <p>Designe un nuevo administrador. Con ese rol la persona tendrá acceso a este menú.</p>
-              <a href="#" class="stretched-link"></a>
+              <p>Designe un nuevo administrador o Instructor para que pueda interactuar con el programador.</p>
+              <a href="?c=usuario&a=agregar_usuario" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
 
