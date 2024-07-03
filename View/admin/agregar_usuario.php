@@ -1,7 +1,7 @@
 <!-- View/admin/agregar_usuario.php -->
 <section class="h-100 gradient-form" style="background-color: #eee;">
     <div class="container py-2 h-100 d-flex flex-column justify-content-between">
-        <div class="row d-flex justify-content-center align-items-center">
+        <div class="row d-flex justify-content-center align-items-center" style="margin: -2.5rem;">
             <div class="col-xl-10">
                 <div class="card rounded-3 text-black">
                     <div class="row g-0">
@@ -46,5 +46,8 @@
                 </div>
             </div>
         </div>
+        
     </div>
+   
+
 </section>

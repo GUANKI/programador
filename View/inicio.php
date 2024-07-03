@@ -67,7 +67,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="carousel-container">
       <h2>DINAMICO Y ACTUALIZABLE</h2>
       <p>Cualquier cambio que se realice se vera reflejado de manera inmediata</p>
-      <a href="about.html" class="btn-get-started">Añadir Instructor</a>
+      <a href="?c=aprendiz&a=aprendizview" class="btn-get-started">Ver mi Programación</a>
     </div>
   </div><!-- End Carousel Item -->
 

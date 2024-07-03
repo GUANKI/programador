@@ -73,7 +73,7 @@ if (isset($_SESSION['user_id'])) {
         <nav id="navmenu" class="navmenu">
           <ul>
             <li><a href="?" class="active">Inicio</a></li>
-            <li><a href="about.html">Consultar Programación</a></li>
+            <li><a href="?c=aprendiz&a=aprendizview">Consultar Programación</a></li>
             <li><a href="<?php echo $programarLink; ?>"><?php
             echo $textheader
             ?></a></li>

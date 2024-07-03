@@ -21,13 +21,14 @@ class ProgramarController {
         $formattedEvents = [];
         foreach ($events as $event) {
             $formattedEvents[] = [
-                'title' => $event['instructor_nombre'],
+                'title' => $event['instructor_nombre'] . " - " . $event['resultado_aprendizaje'],
                 'start' => $event['start'],
                 'end' => $event['end'],
                 'extendedProps' => [
                     'ficha' => $event['ficha'],
                     'resultado_aprendizaje' => $event['resultado_aprendizaje'],
-                    'instructor_nombre' => $event['instructor_nombre']
+                    'instructor_nombre' => $event['instructor_nombre'],
+                    "id" => $event["id"]
                 ]
             ];
         }
@@ -124,33 +125,33 @@ class ProgramarController {
 
     //POR INSTRUCTOR
 
-    public function getInstructorEvents() {
-        $instructor = $_GET['instructor'];
-        $db = Database::Conectar();
-        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre, i.apellido as instructor_apellido FROM programaciones p 
-                              JOIN instructores i ON p.instructor_id = i.id 
-                              WHERE CONCAT(i.nombre, ' ', i.apellido) LIKE :instructor");
-        $instructor = "%".$instructor."%";
-        $stmt->bindParam(':instructor', $instructor);
-        $stmt->execute();
-        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // public function getInstructorEvents() {
+    //     $instructor = $_GET['instructor'];
+    //     $db = Database::Conectar();
+    //     $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre, i.apellido as instructor_apellido FROM programaciones p 
+    //                           JOIN instructores i ON p.instructor_id = i.id 
+    //                           WHERE CONCAT(i.nombre, ' ', i.apellido) LIKE :instructor");
+    //     $instructor = "%".$instructor."%";
+    //     $stmt->bindParam(':instructor', $instructor);
+    //     $stmt->execute();
+    //     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-        $formattedEvents = [];
-        foreach ($events as $event) {
-            $formattedEvents[] = [
-                'title' => $event['ficha'],
-                'start' => $event['start'],
-                'end' => $event['end'],
-                'extendedProps' => [
-                    'ficha' => $event['ficha'],
-                    'resultadoAprendizaje' => $event['resultado_aprendizaje'],
-                    'instructor' => $event['instructor_nombre'] . ' ' . $event['instructor_apellido']
-                ]
-            ];
-        }
+    //     $formattedEvents = [];
+    //     foreach ($events as $event) {
+    //         $formattedEvents[] = [
+    //             'title' => $event['ficha'],
+    //             'start' => $event['start'],
+    //             'end' => $event['end'],
+    //             'extendedProps' => [
+    //                 'ficha' => $event['ficha'],
+    //                 'resultadoAprendizaje' => $event['resultado_aprendizaje'],
+    //                 'instructor' => $event['instructor_nombre'] . ' ' . $event['instructor_apellido']
+    //             ]
+    //         ];
+    //     }
     
-        echo json_encode($formattedEvents);
-    }
+    //     echo json_encode($formattedEvents);
+    // }
     
     public function GetEvents2() {
         $instructorId = $_GET['instructorId'];
@@ -190,6 +191,7 @@ class ProgramarController {
             echo json_encode(['message' => 'Error al eliminar el evento.']);
         }
     }
+    
 
     public function modificarEvento() {
         $data = json_decode(file_get_contents('php://input'), true);
