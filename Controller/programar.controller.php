@@ -27,6 +27,7 @@ class ProgramarController {
                 'extendedProps' => [
                     'ficha' => $event['ficha'],
                     'resultado_aprendizaje' => $event['resultado_aprendizaje'],
+                    'id' => $event['id'],
                     'instructor_nombre' => $event['instructor_nombre']
                 ]
             ];

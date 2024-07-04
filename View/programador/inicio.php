@@ -3,6 +3,10 @@
         background-color: #ffc107 !important;
     }
 
+    .fc-selected-date {
+        background-color: rgba(255, 193, 7, 0.5) !important; /* Un amarillo más opaco */
+    }
+
     #result p {
         cursor: pointer;
         padding: 5px;
@@ -45,11 +49,23 @@
                 locale: 'es',
                 selectable: true,
                 select: function(info) {
-                    selectedDates.push(info.start);
-                    var formattedDates = selectedDates.map(date => date.toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'long'
-                    }));
+                    var date = info.start;
+                    var dateString = date.toISOString().split('T')[0];
+
+                    if (!selectedDates.some(d => d.toISOString().split('T')[0] === dateString)) {
+                        selectedDates.push(date);
+
+                        var formattedDates = selectedDates.map(date => date.toLocaleDateString('es-ES', {
+                            day: 'numeric',
+                            month: 'long'
+                        }));
+
+                        // Añadir la clase de estilo al día seleccionado
+                        var dayEl = document.querySelector(`.fc-day[data-date="${dateString}"]`);
+                        if (dayEl) {
+                            dayEl.classList.add('fc-selected-date');
+                        }
+                    }
                 },
                 events: function(fetchInfo, successCallback, failureCallback) {
                     var ficha = document.getElementById('ficha').value;
@@ -79,7 +95,7 @@
                     $('#infoFicha').text(extendedProps.ficha);
                     $('#infoResultado').text(extendedProps.resultado_aprendizaje);
                     $('#infoInstructor').text(extendedProps.instructor_nombre);
-                    $('#event-id').val(event.id); // Almacena el ID del evento
+                    $('#event-id').text(extendedProps.id); // Almacena el ID del evento
                     $('#infoModal').modal('show');
                 }
             });
@@ -115,9 +131,7 @@
 
             $('#programar-form').submit(function(event) {
                 event.preventDefault();
-                const {
-                    value
-                } = document.querySelector("#select-value");
+                const { value } = document.querySelector("#select-value");
                 var resultadoAprendizaje = $('#resultadoAprendizaje').val();
                 var ficha = $('#ficha').val();
                 var jornada = $('input[name="jornada"]:checked').val();
@@ -148,6 +162,7 @@
                             if (result.message === 'Instructor programado exitosamente.') {
                                 $('#programarModal').modal('hide');
                                 calendar.refetchEvents();
+                                clearSelectedDates(); // Limpiar los días seleccionados después de programar
                             }
                         } catch (e) {
                             console.error('Error parsing JSON response:', e);
@@ -161,73 +176,86 @@
                     }
                 });
             });
-        });
 
-        $(document).ready(function() {
-    // Cuando se hace clic en un evento del calendario
-    $('#calendar').on('eventClick', function(info) {
-        // Rellenar el modal con la información del evento
-        $('#infoFecha').text(info.event.start.toLocaleDateString());
-        $('#infoHoras').text(info.event.start.toLocaleTimeString() + ' - ' + info.event.end.toLocaleTimeString());
-        $('#infoFicha').text(info.event.extendedProps.ficha);
-        $('#infoResultado').val(info.event.extendedProps.resultado);
-        $('#infoInstructor').val(info.event.extendedProps.instructor);
-        $('#event-id').val(info.event.id); // Almacena el ID del evento
-
-        // Mostrar el modal
-        $('#infoModal').modal('show');
-    });
-
-    // Manejar la eliminación del evento
-    $('#delete-event').on('click', function() {
-        var eventId = $('#event-id').val();
-
-        $.ajax({
-            url: '?c=programar&a=eliminarEvento',
-            method: 'POST',
-            data: { id: eventId },
-            success: function(response) {
-                // Manejar la respuesta del servidor
-                alert(response.message);
-                $('#infoModal').modal('hide');
-                // Actualizar el calendario
-                $('#calendar').fullCalendar('removeEvents', eventId);
-            },
-            error: function() {
-                alert('Error al eliminar el evento.');
+            function clearSelectedDates() {
+                selectedDates.forEach(date => {
+                    var dateString = date.toISOString().split('T')[0];
+                    var dayEl = document.querySelector(`.fc-day[data-date="${dateString}"]`);
+                    if (dayEl) {
+                        dayEl.classList.remove('fc-selected-date');
+                    }
+                });
+                selectedDates = [];
             }
-        });
-    });
 
-    // Manejar la modificación del evento
-    $('#modify-event').on('click', function() {
-        var eventId = $('#event-id').val();
-        var resultado = $('#infoResultado').val();
-        var instructor = $('#infoInstructor').val();
-        console.log(eventId);
-        $.ajax({
-            url: '?c=programar&a=modificarEvento',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                id: eventId,
-                resultado_aprendizaje: resultado,
-                instructor_nombre: instructor
-            }),
-            success: function(response) {
-                // Manejar la respuesta del servidor
-                alert(response.message);
-                $('#infoModal').modal('hide');
-                // Actualizar el calendario
-                // Aquí debes actualizar el evento en el calendario con los nuevos datos
-            },
-            error: function() {
-                alert('Error al modificar el evento.');
-            }
-        });
-    });
-});
+            // Limpiar datos al cerrar el modal de programación
+            $('#programarModal').on('hidden.bs.modal', function() {
+                clearSelectedDates();
+                $('#dias_a_programar').html('');
+                $('#select-value').val('');
+                $('#select-input').val('');
+                $('#resultadoAprendizaje').val('');
+                $('input[name="jornada"]').prop('checked', false);
+                $('#horaInicio').val('');
+                $('#horaFin').val('');
+                $('#horarioPersonalizado').hide();
+            });
 
+            // Manejar la eliminación del evento
+            $('#delete-event').on('click', function() {
+                var eventId = $('#event-id').text();
+
+                $.ajax({
+                    url: '?c=programar&a=eliminarEvento',
+                    method: 'POST',
+                    data: { id: eventId },
+                    success: function(response) {
+                        // Manejar la respuesta del servidor
+                        try {
+                            var result = JSON.parse(response);
+                            alert(result.message);
+                            $('#infoModal').modal('hide');
+                            calendar.refetchEvents();
+                        } catch (e) {
+                            console.error('Error parsing JSON response:', e);
+                            console.error('Response:', response);
+                            alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+                    }
+                });
+            });
+
+            // Manejar la modificación del evento
+            $('#modify-event').on('click', function() {
+                var eventId = $('#event-id').val();
+                var resultado = $('#infoResultado').val();
+                var instructor = $('#infoInstructor').val();
+                console.log(eventId);
+                $.ajax({
+                    url: '?c=programar&a=modificarEvento',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        id: eventId,
+                        resultado_aprendizaje: resultado,
+                        instructor_nombre: instructor
+                    }),
+                    success: function(response) {
+                        // Manejar la respuesta del servidor
+                        alert(response.message);
+                        $('#infoModal').modal('hide');
+                        calendar.refetchEvents();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error en la solicitud AJAX:', textStatus, errorThrown);
+                    }
+                });
+            });
+        });
     </script>
 
     <!-- Modal -->
@@ -298,26 +326,26 @@
     </div>
 
     <!-- Modal Informativo -->
-<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="infoModalLabel">Información del Evento</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Día del Evento:</strong> <span id="infoFecha"></span></p>
-                <p><strong>Rango de Horas:</strong> <span id="infoHoras"></span></p>
-                <p><strong>Ficha:</strong> <span id="infoFicha"></span></p>
-                <p><strong>Resultado:</strong> <textarea id="infoResultado" class="form-control" rows="2"></textarea></p>
-                <p><strong>Instructor:</strong> <input type="text" id="infoInstructor" class="form-control"></p>
-                <input type="hidden" id="event-id">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="delete-event">Eliminar</button>
-                <button type="button" class="btn btn-primary" id="modify-event">Modificar</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="infoModalLabel">Información del Evento</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Día del Evento:</strong> <span id="infoFecha"></span></p>
+                    <p><strong>Rango de Horas:</strong> <span id="infoHoras"></span></p>
+                    <p><strong>Ficha:</strong> <span id="infoFicha"></span></p>
+                <p><strong>Resultado:</strong> <span id="infoResultado"></span></p>
+                <p><strong>Instructor:</strong> <span type="text" id="infoInstructor" ></span></p>
+                    <p><strong>Id del modulo:</strong> <span id="event-id"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="delete-event">Eliminar</button>
+                    <!-- <button type="button" class="btn btn-primary" id="modify-event">Modificar</button> -->
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>

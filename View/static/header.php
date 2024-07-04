@@ -8,7 +8,7 @@ if (isset($_SESSION['user_id'])) {
         $programarLink = "?c=usuario&a=adminview";
         $textheader="Administrador"; // Enlace para administradores
     } else {
-        $programarLink = "?c=programar&a=index"; // Enlace para usuarios normales
+        $programarLink = "?c=programar&a=indexInstructor"; // Enlace para usuarios normales
         $textheader ="Ver Horario Instructor";
     }
 } else {
