@@ -4,7 +4,8 @@
     }
 
     .fc-selected-date {
-        background-color: rgba(255, 193, 7, 0.5) !important; /* Un amarillo más opaco */
+        background-color: rgba(255, 193, 7, 0.5) !important;
+        /* Un amarillo más opaco */
     }
 
     #result p {
@@ -131,7 +132,9 @@
 
             $('#programar-form').submit(function(event) {
                 event.preventDefault();
-                const { value } = document.querySelector("#select-value");
+                const {
+                    value
+                } = document.querySelector("#select-value");
                 var resultadoAprendizaje = $('#resultadoAprendizaje').val();
                 var ficha = $('#ficha').val();
                 var jornada = $('input[name="jornada"]:checked').val();
@@ -150,32 +153,69 @@
                     horaFin: horaFin
                 };
 
-                $.ajax({
-                    url: '?c=programar&a=programarInstructor',
-                    method: 'POST',
-                    data: JSON.stringify(data),
-                    contentType: "application/json",
-                    success: function(response) {
-                        try {
-                            var result = JSON.parse(response);
-                            alert(result.message);
-                            if (result.message === 'Instructor programado exitosamente.') {
-                                $('#programarModal').modal('hide');
-                                calendar.refetchEvents();
-                                clearSelectedDates(); // Limpiar los días seleccionados después de programar
-                            }
-                        } catch (e) {
-                            console.error('Error parsing JSON response:', e);
-                            console.error('Response:', response);
-                            alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('AJAX error:', textStatus, errorThrown);
-                        alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+                function sendRequest(data, force = false) {
+                    if (force) {
+                        data.force = true;
                     }
-                });
+
+                    $.ajax({
+                        url: '?c=programar&a=programarInstructor',
+                        method: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: "application/json",
+                        success: function(response) {
+                            try {
+                                var result = JSON.parse(response);
+                                if (result.confirm) {
+                                    Swal.fire({
+                                        title: 'Confirmación',
+                                        text: result.message,
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Programar de todas formas',
+                                        cancelButtonText: 'No programar'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            sendRequest(data, true);
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Resultado',
+                                        text: result.message,
+                                        icon: result.success ? 'success' : 'error'
+                                    });
+                                    if (result.message === 'Instructor programado exitosamente.') {
+                                        $('#programarModal').modal('hide');
+                                        calendar.refetchEvents();
+                                        clearSelectedDates(); // Limpiar los días seleccionados después de programar
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Error parsing JSON response:', e);
+                                console.error('Response:', response);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
+                                    icon: 'error'
+                                });
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error('AJAX error:', textStatus, errorThrown);
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+
+                sendRequest(data);
             });
+
+
 
             function clearSelectedDates() {
                 selectedDates.forEach(date => {
@@ -208,7 +248,9 @@
                 $.ajax({
                     url: '?c=programar&a=eliminarEvento',
                     method: 'POST',
-                    data: { id: eventId },
+                    data: {
+                        id: eventId
+                    },
                     success: function(response) {
                         // Manejar la respuesta del servidor
                         try {
@@ -337,8 +379,8 @@
                     <p><strong>Día del Evento:</strong> <span id="infoFecha"></span></p>
                     <p><strong>Rango de Horas:</strong> <span id="infoHoras"></span></p>
                     <p><strong>Ficha:</strong> <span id="infoFicha"></span></p>
-                <p><strong>Resultado:</strong> <span id="infoResultado"></span></p>
-                <p><strong>Instructor:</strong> <span type="text" id="infoInstructor" ></span></p>
+                    <p><strong>Resultado:</strong> <span id="infoResultado"></span></p>
+                    <p><strong>Instructor:</strong> <span type="text" id="infoInstructor"></span></p>
                     <p><strong>Id del modulo:</strong> <span id="event-id"></span></p>
                 </div>
                 <div class="modal-footer">

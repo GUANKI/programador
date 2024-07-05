@@ -1,20 +1,20 @@
 <?php
 
-$textheader= "";
+$textheader = "";
 // Verificar si el usuario ha iniciado sesión y tiene el privilegio adecuado
 if (isset($_SESSION['user_id'])) {
-    // Determinar el enlace según el privilegio del usuario
-    if ($_SESSION['user_privilege'] == 1) {
-        $programarLink = "?c=usuario&a=adminview";
-        $textheader="Administrador"; // Enlace para administradores
-    } else {
-        $programarLink = "?c=programar&a=indexInstructor"; // Enlace para usuarios normales
-        $textheader ="Ver Horario Instructor";
-    }
+  // Determinar el enlace según el privilegio del usuario
+  if ($_SESSION['user_privilege'] == 1) {
+    $programarLink = "?c=usuario&a=adminview";
+    $textheader = "Administrador"; // Enlace para administradores
+  } else {
+    $programarLink = "?c=programar&a=indexInstructor"; // Enlace para usuarios normales
+    $textheader = "Ver Horario Instructor";
+  }
 } else {
-  
-    $programarLink = "?c=usuario&a=login";
-    $textheader="Programar";
+
+  $programarLink = "?c=usuario&a=login";
+  $textheader = "Programar";
 }
 ?>
 
@@ -22,19 +22,19 @@ if (isset($_SESSION['user_id'])) {
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> -->
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <title>Programador SENA</title>
-    <link rel="stylesheet" href="Assets/css/happyfox.devs.css" />
-    <script src="Assets/js/happyfox.devs.js"></script>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <title>Programador SENA</title>
+  <link rel="stylesheet" href="Assets/css/happyfox.devs.css" />
+  <script src="Assets/js/happyfox.devs.js"></script>
 
 
-     <!-- Favicons -->
+  <!-- Favicons -->
   <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
@@ -53,13 +53,21 @@ if (isset($_SESSION['user_id'])) {
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 
 </head>
+
 <body class="index-page">
 
   <header id="header" class="header sticky-top">
 
-    
+
 
     <div class="branding">
 
@@ -73,15 +81,15 @@ if (isset($_SESSION['user_id'])) {
         <nav id="navmenu" class="navmenu">
           <ul>
             <li><a href="?" class="active">Inicio</a></li>
-            <li><a href="about.html">Consultar Programación</a></li>
+            <li><a href="?c=aprendiz&a=aprendizview">Consultar Programación</a></li>
             <li><a href="<?php echo $programarLink; ?>"><?php
-            echo $textheader
-            ?></a></li>
+                                                        echo $textheader
+                                                        ?></a></li>
             <?php
             if (isset($_SESSION['user_id'])) {
               // Mostrar el botón de Cerrar Sesión
               echo '<a href="?c=usuario&a=logout" class="text-danger">Cerrar Sesión</a>';
-          }
+            }
             ?>
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
@@ -92,4 +100,3 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
   </header>
-
