@@ -51,6 +51,7 @@ class ProgramarController
             $jornada = $data['jornada'];
             $horaInicio = $data['horaInicio'];
             $horaFin = $data['horaFin'];
+            $force = isset($data['force']) ? $data['force'] : false;
 
             $db = Database::Conectar();
 
@@ -84,30 +85,40 @@ class ProgramarController
 
             foreach ($instructores as $instructor) {
                 $instructorId = $instructor->id;
+                $tipoInstructorQuery = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
+                $tipoInstructorQuery->bindParam(':instructor_id', $instructorId);
+                $tipoInstructorQuery->execute();
+                $tipoInstructor = $tipoInstructorQuery->fetch(PDO::FETCH_ASSOC)['tipo_id'];
 
-                // Obtener tipo de instructor
-                $stmt = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
-                $stmt->bindParam(':instructor_id', $instructorId);
-                $stmt->execute();
-                $tipoInstructor = $stmt->fetch(PDO::FETCH_ASSOC)['tipo_id'];
-
+                // Verificar disponibilidad del instructor
                 foreach ($selectedDates as $date) {
-                    // Verificar número de eventos programados en la fecha
-                    $stmt = $db->prepare("SELECT COUNT(*) AS event_count, GROUP_CONCAT(ficha) AS fichas FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
+                    $start = $date . "T" . $startTime;
+                    $end = $date . "T" . $endTime;
+
+                    $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
                     $stmt->bindParam(':instructor_id', $instructorId);
                     $stmt->bindParam(':date', $date);
                     $stmt->execute();
-                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    $eventCount = $result['event_count'];
-                    $fichasProgramadas = $result['fichas'];
+                    $fichasProgramadas = array_column($conflicts, 'ficha');
+                    $diasProgramados = array_column($conflicts, 'start');
 
-                    if (($tipoInstructor == 2 && $eventCount >= 1) || ($tipoInstructor == 1 && $eventCount >= 2)) {
-                        echo json_encode([
-                            'message' => "El instructor ya ha sido programado para este día con los siguientes programas de formación: $fichasProgramadas. ¿Está seguro que quiere programar este día?",
-                            'confirm' => true
-                        ]);
-                        return;
+                    if (!$force) {
+                        if ($tipoInstructor == 2 && count($conflicts) > 0) {
+                            $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
+                                return date('d-m-Y', strtotime($d));
+                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                            return;
+                        }
+                        if ($tipoInstructor == 1 && count($conflicts) > 1) {
+                            $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', array_map(function ($d) {
+                                return date('d-m-Y', strtotime($d));
+                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                            return;
+                        }
                     }
                 }
 
@@ -130,6 +141,8 @@ class ProgramarController
             echo json_encode(['message' => 'Ocurrió un error: ' . $e->getMessage()]);
         }
     }
+
+
 
 
 
