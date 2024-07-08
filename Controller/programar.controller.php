@@ -40,23 +40,22 @@ class ProgramarController
         echo json_encode($formattedEvents);
     }
 
-    public function programarInstructor()
-    {
+    public function programarInstructor() {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             $ficha = $data['ficha'];
             $instructores = json_decode($data['instructores']);
             $resultadoAprendizaje = $data['resultado_aprendizaje'];
-            $selectedDates = $data['selectedDates'];
+            $selectedDates = $data['selectedDates']; 
             $jornada = $data['jornada'];
             $horaInicio = $data['horaInicio'];
             $horaFin = $data['horaFin'];
             $force = isset($data['force']) ? $data['force'] : false;
-
+    
             $db = Database::Conectar();
-
+    
             // Determinar el rango de horas según la jornada
-            switch ($jornada) {
+            switch($jornada) {
                 case 'mañana':
                     $startTime = "06:00:00";
                     $endTime = "11:59:59";
@@ -82,51 +81,53 @@ class ProgramarController
                     echo json_encode(['message' => 'Jornada no válida.']);
                     return;
             }
-
+    
             foreach ($instructores as $instructor) {
                 $instructorId = $instructor->id;
                 $tipoInstructorQuery = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
                 $tipoInstructorQuery->bindParam(':instructor_id', $instructorId);
                 $tipoInstructorQuery->execute();
                 $tipoInstructor = $tipoInstructorQuery->fetch(PDO::FETCH_ASSOC)['tipo_id'];
-
+    
                 // Verificar disponibilidad del instructor
                 foreach ($selectedDates as $date) {
                     $start = $date . "T" . $startTime;
                     $end = $date . "T" . $endTime;
-
+    
                     $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
                     $stmt->bindParam(':instructor_id', $instructorId);
                     $stmt->bindParam(':date', $date);
                     $stmt->execute();
                     $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+    
                     $fichasProgramadas = array_column($conflicts, 'ficha');
                     $diasProgramados = array_column($conflicts, 'start');
-
+    
                     if (!$force) {
                         if ($tipoInstructor == 2 && count($conflicts) > 0) {
-                            $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
-                                return date('d-m-Y', strtotime($d));
-                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            $diasFormateados = array_map(function($d) {
+                                return strftime('%d de %B', strtotime($d));
+                            }, $diasProgramados);
+                            $mensaje = 'El instructor ya está programado el día ' . implode(', ', $diasFormateados) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
                             echo json_encode(['confirm' => true, 'message' => $mensaje]);
                             return;
                         }
                         if ($tipoInstructor == 1 && count($conflicts) > 1) {
-                            $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', array_map(function ($d) {
-                                return date('d-m-Y', strtotime($d));
-                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            $diasFormateados = array_map(function($d) {
+                                return strftime('%d de %B', strtotime($d));
+                            }, $diasProgramados);
+                            $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', $diasFormateados) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
                             echo json_encode(['confirm' => true, 'message' => $mensaje]);
                             return;
                         }
                     }
                 }
-
+    
                 // Insertar la nueva programación
                 foreach ($selectedDates as $date) {
                     $start = $date . "T" . $startTime;
                     $end = $date . "T" . $endTime;
-
+    
                     $stmt = $db->prepare("INSERT INTO programaciones (ficha, instructor_id, start, end, resultado_aprendizaje) VALUES (:ficha, :instructor_id, :start, :end, :resultado_aprendizaje)");
                     $stmt->bindParam(':ficha', $ficha);
                     $stmt->bindParam(':instructor_id', $instructorId);
@@ -141,6 +142,9 @@ class ProgramarController
             echo json_encode(['message' => 'Ocurrió un error: ' . $e->getMessage()]);
         }
     }
+    
+    
+
 
 
 
