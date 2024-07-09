@@ -174,7 +174,7 @@
                                     Swal.fire({
                                         title: 'Resultado',
                                         text: result.message,
-                                        icon: result.success ? 'error' : 'success'
+                                        icon: result.icon ? result.icon : 'success'
                                     });
                                     if (result.message === 'Instructor programado exitosamente.') {
                                         $('#programarModal').modal('hide');
@@ -196,7 +196,7 @@
                             console.error('AJAX error:', textStatus, errorThrown);
                             Swal.fire({
                                 title: 'Error',
-                                text: 'Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.',
+                                text: 'Ocurrió un error al enviar la solicitud. Por favor, inténtalo de nuevo.',
                                 icon: 'error'
                             });
                         }
@@ -205,6 +205,7 @@
 
                 sendRequest(data);
             });
+
 
 
 
