@@ -174,7 +174,7 @@
                                     Swal.fire({
                                         title: 'Resultado',
                                         text: result.message,
-                                        icon: result.success ? 'success' : 'error'
+                                        icon: result.success ? 'error' : 'success'
                                     });
                                     if (result.message === 'Instructor programado exitosamente.') {
                                         $('#programarModal').modal('hide');
@@ -217,90 +217,90 @@
                 }
             });
 
-            $('#programar-form').submit(function(event) {
-                event.preventDefault();
-                const {
-                    value
-                } = document.querySelector("#select-value");
-                var resultadoAprendizaje = $('#resultadoAprendizaje').val();
-                var ficha = $('#ficha').val();
-                var jornada = $('input[name="jornada"]:checked').val();
-                var horaInicio = $('#horaInicio').val();
-                var horaFin = $('#horaFin').val();
+            // $('#programar-form').submit(function(event) {
+            //     event.preventDefault();
+            //     const {
+            //         value
+            //     } = document.querySelector("#select-value");
+            //     var resultadoAprendizaje = $('#resultadoAprendizaje').val();
+            //     var ficha = $('#ficha').val();
+            //     var jornada = $('input[name="jornada"]:checked').val();
+            //     var horaInicio = $('#horaInicio').val();
+            //     var horaFin = $('#horaFin').val();
 
-                var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
+            //     var dates = selectedDates.map(date => date.toISOString().split('T')[0]);
 
-                var data = {
-                    instructores: value,
-                    resultado_aprendizaje: resultadoAprendizaje,
-                    ficha: ficha,
-                    selectedDates: dates,
-                    jornada: jornada,
-                    horaInicio: horaInicio,
-                    horaFin: horaFin
-                };
+            //     var data = {
+            //         instructores: value,
+            //         resultado_aprendizaje: resultadoAprendizaje,
+            //         ficha: ficha,
+            //         selectedDates: dates,
+            //         jornada: jornada,
+            //         horaInicio: horaInicio,
+            //         horaFin: horaFin
+            //     };
 
-                function sendRequest(data, force = false) {
-                    if (force) {
-                        data.force = true;
-                    }
+            //     function sendRequest(data, force = false) {
+            //         if (force) {
+            //             data.force = true;
+            //         }
 
-                    $.ajax({
-                        url: '?c=programar&a=programarInstructor',
-                        method: 'POST',
-                        data: JSON.stringify(data),
-                        contentType: "application/json",
-                        success: function(response) {
-                            try {
-                                var result = JSON.parse(response);
-                                if (result.confirm) {
-                                    Swal.fire({
-                                        title: 'Confirmación',
-                                        text: result.message,
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonText: 'Programar de todas formas',
-                                        cancelButtonText: 'No programar'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            sendRequest(data, true);
-                                        }
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: 'Resultado',
-                                        text: result.message,
-                                        icon: result.success ? 'success' : 'error'
-                                    });
-                                    if (result.message === 'Instructor programado exitosamente.') {
-                                        $('#programarModal').modal('hide');
-                                        calendar.refetchEvents();
-                                        clearSelectedDates(); // Limpiar los días seleccionados después de programar
-                                    }
-                                }
-                            } catch (e) {
-                                console.error('Error parsing JSON response:', e);
-                                console.error('Response:', response);
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
-                                    icon: 'error'
-                                });
-                            }
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error('AJAX error:', textStatus, errorThrown);
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.',
-                                icon: 'error'
-                            });
-                        }
-                    });
-                }
+            //         $.ajax({
+            //             url: '?c=programar&a=programarInstructor',
+            //             method: 'POST',
+            //             data: JSON.stringify(data),
+            //             contentType: "application/json",
+            //             success: function(response) {
+            //                 try {
+            //                     var result = JSON.parse(response);
+            //                     if (result.confirm) {
+            //                         Swal.fire({
+            //                             title: 'Confirmación',
+            //                             text: result.message,
+            //                             icon: 'warning',
+            //                             showCancelButton: true,
+            //                             confirmButtonText: 'Programar de todas formas',
+            //                             cancelButtonText: 'No programar'
+            //                         }).then((result) => {
+            //                             if (result.isConfirmed) {
+            //                                 sendRequest(data, true);
+            //                             }
+            //                         });
+            //                     } else {
+            //                         Swal.fire({
+            //                             title: 'Resultado',
+            //                             text: result.message,
+            //                             icon: result.success ? 'success' : 'error'
+            //                         });
+            //                         if (result.message === 'Instructor programado exitosamente.') {
+            //                             $('#programarModal').modal('hide');
+            //                             calendar.refetchEvents();
+            //                             clearSelectedDates();
+            //                         }
+            //                     }
+            //                 } catch (e) {
+            //                     console.error('Error parsing JSON response:', e);
+            //                     console.error('Response:', response);
+            //                     Swal.fire({
+            //                         title: 'Error',
+            //                         text: 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
+            //                         icon: 'error'
+            //                     });
+            //                 }
+            //             },
+            //             error: function(jqXHR, textStatus, errorThrown) {
+            //                 console.error('AJAX error:', textStatus, errorThrown);
+            //                 Swal.fire({
+            //                     title: 'Error',
+            //                     text: 'Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.',
+            //                     icon: 'error'
+            //                 });
+            //             }
+            //         });
+            //     }
 
-                sendRequest(data);
-            });
+            //     sendRequest(data);
+            // });
 
 
 
