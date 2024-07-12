@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-07-2024 a las 19:18:58
+-- Tiempo de generación: 12-07-2024 a las 22:08:40
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -15,7 +15,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;  
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `programador_bd`
@@ -57,11 +57,27 @@ CREATE TABLE `horarios` (
 
 CREATE TABLE `horas_acumuladas` (
   `id` int(11) NOT NULL,
-  `instructor_id` int(11) DEFAULT NULL,
-  `mes` int(11) DEFAULT NULL,
-  `año` int(11) DEFAULT NULL,
-  `horas_acumuladas` int(11) DEFAULT 0
+  `instructor_id` int(11) NOT NULL,
+  `year` int(11) NOT NULL,
+  `month` int(11) NOT NULL,
+  `hours` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `horas_acumuladas`
+--
+
+INSERT INTO `horas_acumuladas` (`id`, `instructor_id`, `year`, `month`, `hours`) VALUES
+(1, 3, 2024, 7, 2),
+(2, 3, 2024, 8, 7),
+(3, 1, 2024, 7, 2),
+(4, 1, 2024, 8, 2),
+(5, 8, 2024, 7, 23),
+(6, 8, 2024, 8, 11),
+(7, 5, 2024, 7, 0),
+(8, 5, 2024, 8, 1),
+(9, 7, 2024, 8, 0),
+(10, 4, 2024, 7, 8);
 
 -- --------------------------------------------------------
 
@@ -135,19 +151,27 @@ INSERT INTO `programaciones` (`id`, `ficha`, `instructor_id`, `start`, `end`, `r
 (23, '2502636', 7, '2024-06-27 23:15:00', '2024-06-27 01:20:00', '', NULL),
 (30, '2502636', 6, '2024-06-22 06:00:00', '2024-06-22 11:59:59', 'XYZ', NULL),
 (32, '2502636', 3, '2024-06-23 06:00:00', '2024-06-23 11:59:59', 'qqqqq', NULL),
-(36, '2771220', 5, '2024-07-12 12:00:00', '2024-07-12 17:59:59', 'Ejemplo', NULL),
 (37, '2846849 ', 7, '2024-07-10 06:00:00', '2024-07-10 11:59:59', 'XYZ', NULL),
 (38, '145876', 4, '2024-07-16 06:00:00', '2024-07-16 11:59:59', 'dsadasds', NULL),
 (39, '145876', 4, '2024-07-17 06:00:00', '2024-07-17 11:59:59', 'dsadasds', NULL),
-(42, '2771220', 1, '2024-07-18 06:00:00', '2024-07-18 11:59:59', 'dsadas', NULL),
 (69, '2502636', 7, '2024-07-25 06:00:00', '2024-07-25 11:59:59', 'dsadsa', NULL),
 (70, '2502636', 7, '2024-07-22 06:00:00', '2024-07-22 11:59:59', 'Ejemplo', NULL),
 (71, '2502636', 7, '2024-07-23 06:00:00', '2024-07-23 11:59:59', 'Ejemplo', NULL),
 (72, '2502636', 3, '2024-07-16 06:00:00', '2024-07-16 11:59:59', 'XYZ', NULL),
-(73, '2502636', 1, '2024-07-11 06:00:00', '2024-07-11 11:59:59', 'Ejemplo', NULL),
-(74, '2502636', 5, '2024-07-17 06:00:00', '2024-07-17 11:59:59', 'dsdasdas', NULL),
-(75, '2502636', 5, '2024-07-18 06:00:00', '2024-07-18 11:59:59', 'dsdasdas', NULL),
-(76, '2502636', 5, '2024-07-19 06:00:00', '2024-07-19 11:59:59', 'dasdas', NULL);
+(76, '2502636', 5, '2024-07-19 06:00:00', '2024-07-19 11:59:59', 'dasdas', NULL),
+(78, '2502637', 1, '2024-07-11 06:00:00', '2024-07-11 11:59:59', '1', NULL),
+(82, '2502637', 3, '2024-07-10 06:00:00', '2024-07-10 11:59:59', '1', NULL),
+(87, '2502636', 5, '2024-07-17 06:00:00', '2024-07-17 11:59:59', '1', NULL),
+(88, '2502636', 3, '2024-07-16 12:00:00', '2024-07-16 17:59:59', '1', NULL),
+(92, '2502636', 7, '2024-07-12 06:00:00', '2024-07-12 11:59:59', '1', NULL),
+(104, '2502636', 8, '2024-07-30 18:00:00', '2024-07-30 23:00:00', 'd', NULL),
+(107, '2502636', 8, '2024-08-02 18:00:00', '2024-08-02 23:00:00', 'd', NULL),
+(109, '2502636', 5, '2024-07-31 06:00:00', '2024-07-31 11:59:59', '2', NULL),
+(112, '2502638', 8, '2024-07-29 06:00:00', '2024-07-29 11:59:59', '2', NULL),
+(113, '2502638', 8, '2024-07-30 06:00:00', '2024-07-30 11:59:59', '2', NULL),
+(114, '2502638', 8, '2024-07-31 06:00:00', '2024-07-31 11:59:59', '2', NULL),
+(115, '2502638', 8, '2024-08-01 06:00:00', '2024-08-01 11:59:59', '2', NULL),
+(117, '2502638', 4, '2024-07-09 13:00:00', '2024-07-09 21:00:00', '1', NULL);
 
 -- --------------------------------------------------------
 
@@ -220,6 +244,13 @@ INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `cedula`, `contrasena`, `pri
 --
 
 --
+-- Indices de la tabla `horas_acumuladas`
+--
+ALTER TABLE `horas_acumuladas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `instructor_id` (`instructor_id`);
+
+--
 -- Indices de la tabla `instructores`
 --
 ALTER TABLE `instructores`
@@ -257,6 +288,12 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `horas_acumuladas`
+--
+ALTER TABLE `horas_acumuladas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT de la tabla `instructores`
 --
 ALTER TABLE `instructores`
@@ -266,7 +303,7 @@ ALTER TABLE `instructores`
 -- AUTO_INCREMENT de la tabla `programaciones`
 --
 ALTER TABLE `programaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=119;
 
 --
 -- AUTO_INCREMENT de la tabla `programas_formacion`
@@ -289,6 +326,12 @@ ALTER TABLE `usuarios`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `horas_acumuladas`
+--
+ALTER TABLE `horas_acumuladas`
+  ADD CONSTRAINT `horas_acumuladas_ibfk_1` FOREIGN KEY (`instructor_id`) REFERENCES `instructores` (`id`);
 
 --
 -- Filtros para la tabla `instructores`

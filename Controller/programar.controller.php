@@ -41,130 +41,155 @@ class ProgramarController
     }
 
     public function programarInstructor()
-{
-    try {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $ficha = $data['ficha'];
-        $instructores = json_decode($data['instructores']);
-        $resultadoAprendizaje = $data['resultado_aprendizaje'];
-        $selectedDates = $data['selectedDates'];
-        $jornada = $data['jornada'];
-        $horaInicio = $data['horaInicio'];
-        $horaFin = $data['horaFin'];
-        $force = isset($data['force']) ? $data['force'] : false;
+    {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $ficha = $data['ficha'];
+            $instructores = json_decode($data['instructores']);
+            $resultadoAprendizaje = $data['resultado_aprendizaje'];
+            $selectedDates = $data['selectedDates'];
+            $jornada = $data['jornada'];
+            $horaInicio = $data['horaInicio'];
+            $horaFin = $data['horaFin'];
+            $force = isset($data['force']) ? $data['force'] : false;
 
-        $db = Database::Conectar();
+            $db = Database::Conectar();
 
-        // Determinar el rango de horas según la jornada
-        switch ($jornada) {
-            case 'mañana':
-                $startTime = "06:00:00";
-                $endTime = "11:59:59";
-                break;
-            case 'tarde':
-                $startTime = "12:00:00";
-                $endTime = "17:59:59";
-                break;
-            case 'noche':
-                $startTime = "18:00:00";
-                $endTime = "23:00:00";
-                break;
-            case 'personalizada':
-                if ($horaInicio && $horaFin) {
-                    $startTime = $horaInicio;
-                    $endTime = $horaFin;
-                } else {
-                    echo json_encode(['message' => 'Debe seleccionar una hora de inicio y fin para la jornada personalizada.']);
+            // Determinar el rango de horas según la jornada
+            switch ($jornada) {
+                case 'mañana':
+                    $startTime = "06:00:00";
+                    $endTime = "11:59:59";
+                    $hoursPerDay = 6;
+                    break;
+                case 'tarde':
+                    $startTime = "12:00:00";
+                    $endTime = "17:59:59";
+                    $hoursPerDay = 6;
+                    break;
+                case 'noche':
+                    $startTime = "18:00:00";
+                    $endTime = "23:00:00";
+                    $hoursPerDay = 5;
+                    break;
+                case 'personalizada':
+                    if ($horaInicio && $horaFin) {
+                        $startTime = $horaInicio;
+                        $endTime = $horaFin;
+                        $startTimeObj = new DateTime($horaInicio);
+                        $endTimeObj = new DateTime($horaFin);
+                        $hoursPerDay = $endTimeObj->diff($startTimeObj)->h;
+                    } else {
+                        echo json_encode(['message' => 'Debe seleccionar una hora de inicio y fin para la jornada personalizada.']);
+                        return;
+                    }
+                    break;
+                default:
+                    echo json_encode(['message' => 'Jornada no válida.']);
                     return;
-                }
-                break;
-            default:
-                echo json_encode(['message' => 'Jornada no válida.']);
-                return;
-        }
+            }
 
-        // Configurar la localización de fechas a español
-        setlocale(LC_TIME, 'es_ES.UTF-8');
+            foreach ($instructores as $instructor) {
+                $instructorId = $instructor->id;
+                $tipoInstructorQuery = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
+                $tipoInstructorQuery->bindParam(':instructor_id', $instructorId);
+                $tipoInstructorQuery->execute();
+                $tipoInstructor = $tipoInstructorQuery->fetch(PDO::FETCH_ASSOC)['tipo_id'];
 
-        foreach ($instructores as $instructor) {
-            $instructorId = $instructor->id;
-            $tipoInstructorQuery = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
-            $tipoInstructorQuery->bindParam(':instructor_id', $instructorId);
-            $tipoInstructorQuery->execute();
-            $tipoInstructor = $tipoInstructorQuery->fetch(PDO::FETCH_ASSOC)['tipo_id'];
+                // Verificar disponibilidad del instructor
+                foreach ($selectedDates as $date) {
+                    $start = $date . "T" . $startTime;
+                    $end = $date . "T" . $endTime;
 
-            // Verificar disponibilidad del instructor para cada fecha seleccionada
-            foreach ($selectedDates as $date) {
-                $start = $date . "T" . $startTime;
-                $end = $date . "T" . $endTime;
-
-                $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND (
+                    $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND (
                     (start <= :start AND end >= :start) OR 
                     (start <= :end AND end >= :end) OR 
                     (start >= :start AND end <= :end)
                 )");
-                $stmt->bindParam(':instructor_id', $instructorId);
-                $stmt->bindParam(':start', $start);
-                $stmt->bindParam(':end', $end);
-                $stmt->execute();
-                $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $stmt->bindParam(':instructor_id', $instructorId);
+                    $stmt->bindParam(':start', $start);
+                    $stmt->bindParam(':end', $end);
+                    $stmt->execute();
+                    $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if (count($conflicts) > 0) {
-                    $conflictingFicha = array_column($conflicts, 'ficha');
-                    echo json_encode([
-                        'confirm' => false,
-                        'message' => 'El instructor ya está programado en este horario el día ' . strftime('%d de %B', strtotime($date)) . ' con el programa de ficha ' . implode(', ', $conflictingFicha) . '.',
-                        'icon' => 'error'
-                    ]);
-                    return;
-                }
-
-                $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
-                $stmt->bindParam(':instructor_id', $instructorId);
-                $stmt->bindParam(':date', $date);
-                $stmt->execute();
-                $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                $fichasProgramadas = array_column($conflicts, 'ficha');
-                $diasProgramados = array_column($conflicts, 'start');
-
-                if (!$force) {
-                    if ($tipoInstructor == 2 && count($conflicts) > 0) {
-                        $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
-                            return strftime('%d de %B', strtotime($d));
-                        }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
-                        echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                    if (count($conflicts) > 0) {
+                        echo json_encode(['type' => 'error', 'message' => 'El instructor ya está programado en este horario.']);
                         return;
                     }
-                    if ($tipoInstructor == 1 && count($conflicts) > 1) {
-                        $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', array_map(function ($d) {
-                            return strftime('%d de %B', strtotime($d));
-                        }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
-                        echo json_encode(['confirm' => true, 'message' => $mensaje]);
-                        return;
+
+                    $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
+                    $stmt->bindParam(':instructor_id', $instructorId);
+                    $stmt->bindParam(':date', $date);
+                    $stmt->execute();
+                    $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $fichasProgramadas = array_column($conflicts, 'ficha');
+                    $diasProgramados = array_column($conflicts, 'start');
+
+                    if (!$force) {
+                        if ($tipoInstructor == 2 && count($conflicts) > 0) {
+                            $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
+                                return date('d \d\e F', strtotime($d));
+                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                            return;
+                        }
+                        if ($tipoInstructor == 1 && count($conflicts) > 1) {
+                            $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', array_map(function ($d) {
+                                return date('d \d\e F', strtotime($d));
+                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                            return;
+                        }
+                    }
+                }
+
+                // Insertar la nueva programación y actualizar las horas acumuladas
+                foreach ($selectedDates as $date) {
+                    $start = $date . "T" . $startTime;
+                    $end = $date . "T" . $endTime;
+
+                    $stmt = $db->prepare("INSERT INTO programaciones (ficha, instructor_id, start, end, resultado_aprendizaje) VALUES (:ficha, :instructor_id, :start, :end, :resultado_aprendizaje)");
+                    $stmt->bindParam(':ficha', $ficha);
+                    $stmt->bindParam(':instructor_id', $instructorId);
+                    $stmt->bindParam(':start', $start);
+                    $stmt->bindParam(':end', $end);
+                    $stmt->bindParam(':resultado_aprendizaje', $resultadoAprendizaje);
+                    $stmt->execute();
+
+                    // Calcular las horas acumuladas
+                    $year = date('Y', strtotime($date));
+                    $month = date('n', strtotime($date));
+
+                    $hoursQuery = $db->prepare("SELECT * FROM horas_acumuladas WHERE instructor_id = :instructor_id AND year = :year AND month = :month");
+                    $hoursQuery->bindParam(':instructor_id', $instructorId);
+                    $hoursQuery->bindParam(':year', $year);
+                    $hoursQuery->bindParam(':month', $month);
+                    $hoursQuery->execute();
+                    $hoursRecord = $hoursQuery->fetch(PDO::FETCH_ASSOC);
+
+                    if ($hoursRecord) {
+                        $newHours = $hoursRecord['hours'] + $hoursPerDay;
+                        $updateHoursQuery = $db->prepare("UPDATE horas_acumuladas SET hours = :hours WHERE id = :id");
+                        $updateHoursQuery->bindParam(':hours', $newHours);
+                        $updateHoursQuery->bindParam(':id', $hoursRecord['id']);
+                        $updateHoursQuery->execute();
+                    } else {
+                        $insertHoursQuery = $db->prepare("INSERT INTO horas_acumuladas (instructor_id, year, month, hours) VALUES (:instructor_id, :year, :month, :hours)");
+                        $insertHoursQuery->bindParam(':instructor_id', $instructorId);
+                        $insertHoursQuery->bindParam(':year', $year);
+                        $insertHoursQuery->bindParam(':month', $month);
+                        $insertHoursQuery->bindParam(':hours', $hoursPerDay);
+                        $insertHoursQuery->execute();
                     }
                 }
             }
-
-            // Insertar la nueva programación
-            foreach ($selectedDates as $date) {
-                $start = $date . "T" . $startTime;
-                $end = $date . "T" . $endTime;
-
-                $stmt = $db->prepare("INSERT INTO programaciones (ficha, instructor_id, start, end, resultado_aprendizaje) VALUES (:ficha, :instructor_id, :start, :end, :resultado_aprendizaje)");
-                $stmt->bindParam(':ficha', $ficha);
-                $stmt->bindParam(':instructor_id', $instructorId);
-                $stmt->bindParam(':start', $start);
-                $stmt->bindParam(':end', $end);
-                $stmt->bindParam(':resultado_aprendizaje', $resultadoAprendizaje);
-                $stmt->execute();
-            }
+            echo json_encode(['message' => 'Instructor programado exitosamente.']);
+        } catch (Exception $e) {
+            echo json_encode(['message' => 'Ocurrió un error: ' . $e->getMessage()]);
         }
-        echo json_encode(['message' => 'Instructor programado exitosamente.']);
-    } catch (Exception $e) {
-        echo json_encode(['message' => 'Ocurrió un error: ' . $e->getMessage()]);
     }
-}
+
 
 
 
@@ -241,15 +266,65 @@ class ProgramarController
     {
         $id = $_POST['id'];
         $db = Database::Conectar();
-        $sql = "DELETE FROM programaciones WHERE id = :id";
+
+        // Obtener la información del evento antes de eliminarlo
+        $sql = "SELECT instructor_id, start, end FROM programaciones WHERE id = :id";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        if ($stmt->execute()) {
-            echo json_encode(['message' => 'Evento eliminado exitosamente.']);
+        $stmt->execute();
+        $event = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($event) {
+            // Calcular las horas del evento con mayor precisión
+            $start = new DateTime($event['start']);
+            $end = new DateTime($event['end']);
+            $interval = $start->diff($end);
+            $hours = $interval->h + ($interval->i / 60) + ($interval->s / 3600); // Calcula horas totales considerando minutos y segundos
+
+            $year = $start->format('Y');
+            $month = $start->format('n');
+            $instructorId = $event['instructor_id'];
+
+            // Actualizar las horas acumuladas
+            $sql = "SELECT * FROM horas_acumuladas WHERE instructor_id = :instructor_id AND year = :year AND month = :month";
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':instructor_id', $instructorId);
+            $stmt->bindParam(':year', $year);
+            $stmt->bindParam(':month', $month);
+            $stmt->execute();
+            $hoursRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($hoursRecord) {
+                $newHours = $hoursRecord['hours'] - $hours;
+                if ($newHours <= 0) {
+                    // Si las horas restantes son 0 o menos, eliminar el registro
+                    $sql = "DELETE FROM horas_acumuladas WHERE id = :id";
+                    $stmt = $db->prepare($sql);
+                    $stmt->bindParam(':id', $hoursRecord['id']);
+                } else {
+                    // Si las horas restantes son mayores a 0, actualizar el registro
+                    $sql = "UPDATE horas_acumuladas SET hours = :hours WHERE id = :id";
+                    $stmt = $db->prepare($sql);
+                    $stmt->bindParam(':hours', $newHours);
+                    $stmt->bindParam(':id', $hoursRecord['id']);
+                }
+                $stmt->execute();
+            }
+
+            // Eliminar el evento
+            $sql = "DELETE FROM programaciones WHERE id = :id";
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            if ($stmt->execute()) {
+                echo json_encode(['message' => 'Evento eliminado exitosamente.']);
+            } else {
+                echo json_encode(['message' => 'Error al eliminar el evento.']);
+            }
         } else {
-            echo json_encode(['message' => 'Error al eliminar el evento.']);
+            echo json_encode(['message' => 'El evento no existe.']);
         }
     }
+
 
     // public function modificarEvento() {
     //     $data = json_decode(file_get_contents('php://input'), true);

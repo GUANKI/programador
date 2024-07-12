@@ -334,31 +334,58 @@
             $('#delete-event').on('click', function() {
                 var eventId = $('#event-id').text();
 
-                $.ajax({
-                    url: '?c=programar&a=eliminarEvento',
-                    method: 'POST',
-                    data: {
-                        id: eventId
-                    },
-                    success: function(response) {
-                        // Manejar la respuesta del servidor
-                        try {
-                            var result = JSON.parse(response);
-                            alert(result.message);
-                            $('#infoModal').modal('hide');
-                            calendar.refetchEvents();
-                        } catch (e) {
-                            console.error('Error parsing JSON response:', e);
-                            console.error('Response:', response);
-                            alert('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('AJAX error:', textStatus, errorThrown);
-                        alert('Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.');
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: "No podrás revertir esto",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminarlo',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '?c=programar&a=eliminarEvento',
+                            method: 'POST',
+                            data: {
+                                id: eventId
+                            },
+                            success: function(response) {
+                                // Manejar la respuesta del servidor
+                                try {
+                                    var result = JSON.parse(response);
+                                    Swal.fire(
+                                        'Eliminado!',
+                                        result.message,
+                                        'success'
+                                    );
+                                    $('#infoModal').modal('hide');
+                                    calendar.refetchEvents();
+                                } catch (e) {
+                                    console.error('Error parsing JSON response:', e);
+                                    console.error('Response:', response);
+                                    Swal.fire(
+                                        'Error!',
+                                        'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error('AJAX error:', textStatus, errorThrown);
+                                Swal.fire(
+                                    'Error!',
+                                    'Ocurrió un error en la comunicación con el servidor. Por favor, inténtalo de nuevo.',
+                                    'error'
+                                );
+                            }
+                        });
                     }
                 });
             });
+
+
 
             // Manejar la modificación del evento
             $('#modify-event').on('click', function() {
