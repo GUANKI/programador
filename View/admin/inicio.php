@@ -62,7 +62,7 @@
                 <h3>Consultar Horas Programadas</h3>
               </a>
               <p>Consulte cuantas horas tiene programadas un instructor en el mes.</p>
-              <a href="#" class="stretched-link"></a>
+              <a href="?c=generar&a=excel" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
 
@@ -84,3 +84,38 @@
       </div>
 
     </section><!-- /Services Section -->
+    <script>
+    // Esperar a que el documento esté completamente cargado
+    document.addEventListener("DOMContentLoaded", function() {
+        // Capturar el evento de clic en el botón
+        document.getElementById("btn-generar-excel").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+
+            // Realizar una petición AJAX para generar el archivo Excel
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '?c=generar&a=excel', true);
+            xhr.responseType = 'blob'; // Importante: solicitar una respuesta de tipo blob (archivo binario)
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Crear un objeto URL con la respuesta del servidor
+                    var blob = xhr.response;
+                    var url = window.URL.createObjectURL(blob);
+
+                    // Crear un enlace invisible para descargar el archivo
+                    var a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'reporte_mensual_instructores_<?php echo date('Y'); ?>.xlsx'; // Nombre del archivo sugerido para descarga
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Liberar el objeto URL después de la descarga
+                    window.URL.revokeObjectURL(url);
+                }
+            };
+
+            xhr.send();
+        });
+    });
+</script>
