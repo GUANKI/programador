@@ -39,7 +39,12 @@ class InstructorModel {
             return $query->execute();
         }
     }
-
-
+    public function getAllInstructores() {
+        $query = $this->db->prepare("SELECT i.*, ti.descripcion as tipo_nombre FROM instructores i
+                                    JOIN tipos_instructores ti ON i.tipo_id = ti.id");
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }
 ?>

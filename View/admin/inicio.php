@@ -75,7 +75,7 @@
                 <h3>Proximamente</h3>
               </a>
               <p>(...)</p>
-              <a href="#" class="stretched-link"></a>
+              <a href="?c=instructor&a=instructorview" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
 

@@ -106,6 +106,7 @@
             $('#search-button').click(function() {
                 var ficha = $('#ficha').val();
                 if (ficha) {
+                    clearSelectedDates();
                     calendar.refetchEvents();
                 } else {
                     alert("Ingrese un número de ficha.");

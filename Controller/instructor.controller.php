@@ -7,6 +7,10 @@ class InstructorController {
     public function __construct() {
         $this->model = new InstructorModel();
     }
+    public function instructorview(){
+        $instructores = $this->model->getAllInstructores();
+        plantilla("instructor/inicio.php",['instructores' => $instructores]);
+    }
 
     public function agregar() {
         $tiposInstructores = $this->model->getTiposInstructores();
