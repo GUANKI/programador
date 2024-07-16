@@ -22,8 +22,9 @@ class InstructorController {
             $nombre = $_POST['nombre'];
             $apellido = $_POST['apellido'];
             $tipo_id = $_POST['tipo_id'];
+            $perfil = $_POST['perfil'];
 
-            if ($this->model->agregarInstructor($nombre, $apellido, $tipo_id)) {
+            if ($this->model->agregarInstructor($nombre, $apellido, $tipo_id, $perfil)) {
                 
                 redirect("?c=instructor&a=agregar", "Exito-Instructor Agregado");
                 

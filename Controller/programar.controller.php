@@ -25,7 +25,7 @@ class ProgramarController
         $formattedEvents = [];
         foreach ($events as $event) {
             $formattedEvents[] = [
-                'title' => $event['instructor_nombre'],
+                'title' => $event['instructor_nombre'] . " - " . $event["resultado_aprendizaje"],
                 'start' => $event['start'],
                 'end' => $event['end'],
                 'extendedProps' => [
@@ -153,14 +153,14 @@ class ProgramarController
                         if ($tipoInstructor == 2 && count($conflicts) > 0) {
                             $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
                                 return date('d \d\e F', strtotime($d));
-                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            }, $diasProgramados)) . ' con la(s) ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
                             echo json_encode(['confirm' => true, 'message' => $mensaje]);
                             return;
                         }
                         if ($tipoInstructor == 1 && count($conflicts) > 1) {
                             $mensaje = 'El instructor ya está programado dos veces el día ' . implode(', ', array_map(function ($d) {
                                 return date('d \d\e F', strtotime($d));
-                            }, $diasProgramados)) . ' con el programa de ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
+                            }, $diasProgramados)) . ' con la(s) ficha(s) ' . implode(', ', $fichasProgramadas) . '. ¿Desea programar de todas formas?';
                             echo json_encode(['confirm' => true, 'message' => $mensaje]);
                             return;
                         }

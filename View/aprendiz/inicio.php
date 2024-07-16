@@ -1,3 +1,13 @@
+<!-- <style>
+
+.fc-event-title {
+    white-space: normal !important; 
+    word-wrap: break-word !important; 
+
+    }
+
+</style> -->
+
 </head>
 <body>
     <div class="container mb-5">

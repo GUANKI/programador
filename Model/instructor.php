@@ -1,18 +1,22 @@
 <?php
-class InstructorModel {
+class InstructorModel
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Database::Conectar();
     }
 
-    public function getTiposInstructores() {
+    public function getTiposInstructores()
+    {
         $query = $this->db->prepare("SELECT * FROM tipos_instructores");
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function instructorExiste($nombre, $apellido) {
+    public function instructorExiste($nombre, $apellido)
+    {
         $query = $this->db->prepare("
             SELECT COUNT(*) 
             FROM instructores 
@@ -25,26 +29,28 @@ class InstructorModel {
         return $query->fetchColumn() > 0;
     }
 
-    public function agregarInstructor($nombre, $apellido, $tipo_id) {
+    public function agregarInstructor($nombre, $apellido, $tipo_id, $perfil)
+    {
         if ($this->instructorExiste($nombre, $apellido)) {
             return false; // Instructor ya existe
         } else {
             $query = $this->db->prepare("
-                INSERT INTO instructores (nombre, apellido, tipo_id) 
-                VALUES (:nombre, :apellido, :tipo_id)
+                INSERT INTO instructores (nombre, apellido, tipo_id, perfil) 
+                VALUES (:nombre, :apellido, :tipo_id, :perfil)
             ");
             $query->bindParam(':nombre', $nombre);
             $query->bindParam(':apellido', $apellido);
             $query->bindParam(':tipo_id', $tipo_id);
+            $query->bindParam(':perfil', $perfil);
             return $query->execute();
         }
     }
-    public function getAllInstructores() {
+
+    public function getAllInstructores()
+    {
         $query = $this->db->prepare("SELECT i.*, ti.descripcion as tipo_nombre FROM instructores i
                                     JOIN tipos_instructores ti ON i.tipo_id = ti.id");
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 }
-?>

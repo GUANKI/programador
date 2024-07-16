@@ -17,6 +17,11 @@
     #result p:hover {
         background-color: #f0f0f0;
     }
+     .fc-event-title {
+    white-space: normal !important; 
+    word-wrap: break-word !important; 
+
+    } 
 </style>
 </head>
 

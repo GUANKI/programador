@@ -13,10 +13,10 @@
         background-color: #f0f0f0;
     }
 
-    .fc-event-title {
-    white-space: normal !important; /* Permitir que el texto se ajuste en múltiples líneas */
-    word-wrap: break-word !important; /* Permitir que las palabras largas se rompan y ajusten en la siguiente línea */
-}
+    /* .fc-event-title {
+    white-space: normal !important; 
+    word-wrap: break-word !important; 
+    } */
 </style>
 </head>
 

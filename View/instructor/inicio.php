@@ -7,6 +7,7 @@
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Tipo</th>
+                    <th>Perfil</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -18,6 +19,7 @@
                             <td><?php echo $instructor['nombre']; ?></td>
                             <td><?php echo $instructor['apellido']; ?></td>
                             <td><?php echo $instructor['tipo_nombre']; ?></td>
+                            <td><?php echo $instructor['perfil']; ?></td>
                             <td>
                                 <a href="?c=instructores&a=editar&id=<?php echo $instructor['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
                                 <button class="btn btn-sm btn-danger delete-instructor" data-id="<?php echo $instructor['id']; ?>">Eliminar</button>
