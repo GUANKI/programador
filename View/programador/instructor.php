@@ -67,7 +67,7 @@
                                 <div class="modal-body">
                                     <p><strong>Ficha:</strong> ${eventObj.extendedProps.ficha}</p>
                                     <p><strong>Resultado de Aprendizaje:</strong> ${eventObj.extendedProps.resultadoAprendizaje}</p>
-                                    <p><strong>Instructor:</strong> ${eventObj.title.split(' - ')[1]}</p>
+                                    <p><strong>Instructor:</strong> ${eventObj.extendedProps.instructorNombre}</p>
                                     <p><strong>Fecha:</strong> ${eventObj.start.toLocaleDateString('es-ES')}</p>
                                     <p><strong>Hora:</strong> ${eventObj.extendedProps.horaInicio} - ${eventObj.extendedProps.horaFin}</p>
                                 </div>

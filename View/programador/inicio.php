@@ -17,11 +17,12 @@
     #result p:hover {
         background-color: #f0f0f0;
     }
-     .fc-event-title {
-    white-space: normal !important; 
-    word-wrap: break-word !important; 
 
-    } 
+    /* .fc-event-title {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+
+    } */
 </style>
 </head>
 
@@ -180,7 +181,7 @@
                                     Swal.fire({
                                         title: 'Resultado',
                                         text: result.message,
-                                        icon: result.icon ? result.icon : 'success'
+                                        icon: result.type ? result.type : 'success'
                                     });
                                     if (result.message === 'Instructor programado exitosamente.') {
                                         $('#programarModal').modal('hide');

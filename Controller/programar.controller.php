@@ -14,7 +14,7 @@ class ProgramarController
     {
         $ficha = $_GET['ficha'];
         $db = Database::Conectar();
-        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre FROM programaciones p 
+        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre,  i.apellido as instructor_apellido FROM programaciones p 
                               JOIN instructores i ON p.instructor_id = i.id 
                               WHERE p.ficha = :ficha");
         $stmt->bindParam(':ficha', $ficha);
@@ -32,7 +32,7 @@ class ProgramarController
                     'ficha' => $event['ficha'],
                     'resultado_aprendizaje' => $event['resultado_aprendizaje'],
                     'id' => $event['id'],
-                    'instructor_nombre' => $event['instructor_nombre']
+                    'instructor_nombre' => $event['instructor_nombre'] . " " . $event["instructor_apellido"]
                 ]
             ];
         }
@@ -52,9 +52,9 @@ class ProgramarController
             $horaInicio = $data['horaInicio'];
             $horaFin = $data['horaFin'];
             $force = isset($data['force']) ? $data['force'] : false;
-    
+
             $db = Database::Conectar();
-    
+
             // Determinar el rango de horas según la jornada
             switch ($jornada) {
                 case 'mañana':
@@ -88,42 +88,42 @@ class ProgramarController
                     echo json_encode(['message' => 'Jornada no válida.']);
                     return;
             }
-    
+
             foreach ($instructores as $index => $instructor) {
                 $instructorId = $instructor->id;
                 $tipoInstructorQuery = $db->prepare("SELECT tipo_id FROM instructores WHERE id = :instructor_id");
                 $tipoInstructorQuery->bindParam(':instructor_id', $instructorId);
                 $tipoInstructorQuery->execute();
                 $tipoInstructor = $tipoInstructorQuery->fetch(PDO::FETCH_ASSOC)['tipo_id'];
-    
-                 // Obtener el límite de horas para el tipo de instructor desde la tabla tipos_instructores
-                 $limiteHorasQuery = $db->prepare("SELECT horas_maximas FROM tipos_instructores WHERE id = :tipo_instructor");
-                 $limiteHorasQuery->bindParam(':tipo_instructor', $tipoInstructor);
-                 $limiteHorasQuery->execute();
-                 $limiteHoras = $limiteHorasQuery->fetch(PDO::FETCH_ASSOC)['horas_maximas'];
-     
-                 // Verificar horas acumuladas del instructor
-                 $currentMonth = date('n');
-                 $currentYear = date('Y');
-                 $hoursQuery = $db->prepare("SELECT SUM(hours) as total_hours FROM horas_acumuladas WHERE instructor_id = :instructor_id AND month = :month AND year = :year");
-                 $hoursQuery->bindParam(':instructor_id', $instructorId);
-                 $hoursQuery->bindParam(':month', $currentMonth);
-                 $hoursQuery->bindParam(':year', $currentYear);
-                 $hoursQuery->execute();
-                 $currentHours = $hoursQuery->fetch(PDO::FETCH_ASSOC)['total_hours'];
-     
-                 // Verificar si supera el límite de horas
-                 if ($currentHours + $hoursPerDay > $limiteHoras && !$force) {
-                     $mensaje = "¡Advertencia! El instructor ha alcanzado el límite de horas ($limiteHoras horas). Horas acumuladas hasta ahora: $currentHours horas.";
-                     echo json_encode(['confirm' => true, 'message' => $mensaje]);
-                     return;
-                 }
-    
+
+                // Obtener el límite de horas para el tipo de instructor desde la tabla tipos_instructores
+                $limiteHorasQuery = $db->prepare("SELECT horas_maximas FROM tipos_instructores WHERE id = :tipo_instructor");
+                $limiteHorasQuery->bindParam(':tipo_instructor', $tipoInstructor);
+                $limiteHorasQuery->execute();
+                $limiteHoras = $limiteHorasQuery->fetch(PDO::FETCH_ASSOC)['horas_maximas'];
+
+                // Verificar horas acumuladas del instructor
+                $currentMonth = date('n');
+                $currentYear = date('Y');
+                $hoursQuery = $db->prepare("SELECT SUM(hours) as total_hours FROM horas_acumuladas WHERE instructor_id = :instructor_id AND month = :month AND year = :year");
+                $hoursQuery->bindParam(':instructor_id', $instructorId);
+                $hoursQuery->bindParam(':month', $currentMonth);
+                $hoursQuery->bindParam(':year', $currentYear);
+                $hoursQuery->execute();
+                $currentHours = $hoursQuery->fetch(PDO::FETCH_ASSOC)['total_hours'];
+
+                // Verificar si supera el límite de horas
+                if ($currentHours + $hoursPerDay > $limiteHoras && !$force) {
+                    $mensaje = "¡Advertencia! El instructor ha alcanzado el límite de horas ($limiteHoras horas). Horas acumuladas hasta ahora: $currentHours horas.";
+                    echo json_encode(['confirm' => true, 'message' => $mensaje]);
+                    return;
+                }
+
                 // Verificar disponibilidad del instructor
                 foreach ($selectedDates as $date) {
                     $start = $date . "T" . $startTime;
                     $end = $date . "T" . $endTime;
-    
+
                     $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND (
                     (start <= :start AND end >= :start) OR 
                     (start <= :end AND end >= :end) OR 
@@ -134,21 +134,22 @@ class ProgramarController
                     $stmt->bindParam(':end', $end);
                     $stmt->execute();
                     $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
                     if (count($conflicts) > 0) {
-                        echo json_encode(['type' => 'error', 'message' => 'El instructor ya está programado en este horario.']);
+                        $programaConflicto = $conflicts[0]['ficha'];
+                        echo json_encode(['type' => 'error', 'message' => 'El instructor ya está programado en este horario con la ficha ' . $programaConflicto . '.']);
                         return;
                     }
-    
+
                     $stmt = $db->prepare("SELECT * FROM programaciones WHERE instructor_id = :instructor_id AND DATE(start) = :date");
                     $stmt->bindParam(':instructor_id', $instructorId);
                     $stmt->bindParam(':date', $date);
                     $stmt->execute();
                     $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
                     $fichasProgramadas = array_column($conflicts, 'ficha');
                     $diasProgramados = array_column($conflicts, 'start');
-    
+
                     if (!$force) {
                         if ($tipoInstructor == 2 && count($conflicts) > 0) {
                             $mensaje = 'El instructor ya está programado el día ' . implode(', ', array_map(function ($d) {
@@ -166,12 +167,12 @@ class ProgramarController
                         }
                     }
                 }
-    
+
                 // Insertar la nueva programación y actualizar las horas acumuladas
                 foreach ($selectedDates as $date) {
                     $start = $date . "T" . $startTime;
                     $end = $date . "T" . $endTime;
-    
+
                     $stmt = $db->prepare("INSERT INTO programaciones (ficha, instructor_id, start, end, resultado_aprendizaje) VALUES (:ficha, :instructor_id, :start, :end, :resultado_aprendizaje)");
                     $stmt->bindParam(':ficha', $ficha);
                     $stmt->bindParam(':instructor_id', $instructorId);
@@ -179,18 +180,18 @@ class ProgramarController
                     $stmt->bindParam(':end', $end);
                     $stmt->bindParam(':resultado_aprendizaje', $resultadoAprendizaje);
                     $stmt->execute();
-    
+
                     // Calcular las horas acumuladas
                     $year = date('Y', strtotime($date));
                     $month = date('n', strtotime($date));
-    
+
                     $hoursQuery = $db->prepare("SELECT * FROM horas_acumuladas WHERE instructor_id = :instructor_id AND year = :year AND month = :month");
                     $hoursQuery->bindParam(':instructor_id', $instructorId);
                     $hoursQuery->bindParam(':year', $year);
                     $hoursQuery->bindParam(':month', $month);
                     $hoursQuery->execute();
                     $hoursRecord = $hoursQuery->fetch(PDO::FETCH_ASSOC);
-    
+
                     if ($hoursRecord) {
                         $newHours = $hoursRecord['hours'] + $hoursPerDay;
                         $updateHoursQuery = $db->prepare("UPDATE horas_acumuladas SET hours = :hours WHERE id = :id");
@@ -207,13 +208,13 @@ class ProgramarController
                     }
                 }
             }
-    
+
             echo json_encode(['type' => 'success', 'message' => 'Instructor programado exitosamente.']);
         } catch (Exception $e) {
             echo json_encode(['type' => 'error', 'message' => $e->getMessage()]);
         }
     }
-    
+
 
 
 
@@ -265,9 +266,9 @@ class ProgramarController
     {
         $instructorId = $_GET['instructorId'];
         $db = Database::Conectar();
-        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre FROM programaciones p 
-                              JOIN instructores i ON p.instructor_id = i.id 
-                              WHERE p.instructor_id = :instructorId");
+        $stmt = $db->prepare("SELECT p.*, i.nombre as instructor_nombre, i.apellido as instructor_apellido FROM programaciones p 
+                          JOIN instructores i ON p.instructor_id = i.id 
+                          WHERE p.instructor_id = :instructorId");
         $stmt->bindParam(':instructorId', $instructorId);
         $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -281,7 +282,8 @@ class ProgramarController
                 'ficha' => $event['ficha'],
                 'resultadoAprendizaje' => $event['resultado_aprendizaje'],
                 'horaInicio' => date('H:i', strtotime($event['start'])),
-                'horaFin' => date('H:i', strtotime($event['end']))
+                'horaFin' => date('H:i', strtotime($event['end'])),
+                'instructorNombre' => $event['instructor_nombre'] . ' ' . $event['instructor_apellido']
             ];
         }
 
