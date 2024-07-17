@@ -61,7 +61,7 @@
               <a href="#" class="stretched-link">
                 <h3>Consultar Horas Programadas</h3>
               </a>
-              <p>Consulte cuantas horas tiene programadas un instructor en el mes.</p>
+              <p>Descargue el reporte de los horas porgramadas de los instructores</p>
               <a href="?c=generar&a=excel" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
@@ -72,9 +72,9 @@
                 <i class="bi bi-chat-square-text"></i>
               </div>
               <a href="#" class="stretched-link">
-                <h3>Proximamente</h3>
+                <h3>Instructores</h3>
               </a>
-              <p>(...)</p>
+              <p>Lista de los instructores disponibles para ser programados</p>
               <a href="?c=instructor&a=instructorview" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
