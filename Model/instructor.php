@@ -53,4 +53,48 @@ class InstructorModel
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function eliminarInstructor($id)
+    {
+    
+        try {
+            $sql = "DELETE FROM programaciones WHERE instructor_id = :id";
+            $query = $this->db->prepare($sql);
+            $query->bindParam(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+             // Eliminar registros en horas_acumuladas relacionados con el instructor
+            $sql = "DELETE FROM horas_acumuladas WHERE instructor_id = :id";
+            $query = $this->db->prepare($sql);
+            $query->bindParam(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+    
+            // Luego eliminar el instructor
+            $sql = "DELETE FROM instructores WHERE id = :id";
+            $query = $this->db->prepare($sql);
+            $query->bindParam(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+    
+            // Confirmar transacción
+    
+            return ['success' => true];
+        } catch (PDOException $e) {
+            // Revertir transacción en caso de error
+            $this->db->rollBack();
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+    public function actualizarInstructor($id, $nombre, $apellido, $tipo_id, $perfil) {
+        try {
+            $sql = "UPDATE instructores SET nombre = ?, apellido = ?, tipo_id = ?, perfil = ? WHERE id = ?";
+            $query = $this->db->prepare($sql);
+            $query->execute([$nombre, $apellido, $tipo_id, $perfil, $id]);
+
+            if ($query->rowCount() > 0) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'message' => 'No se realizaron cambios.'];
+            }
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
 }

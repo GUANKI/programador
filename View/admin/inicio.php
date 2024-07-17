@@ -62,7 +62,7 @@
                 <h3>Consultar Horas Programadas</h3>
               </a>
               <p>Descargue el reporte de los horas porgramadas de los instructores</p>
-              <a href="?c=generar&a=excel" class="stretched-link"></a>
+              <a href="?c=generar&a=inicio" class="stretched-link"></a>
             </div>
           </div><!-- End Service Item -->
 

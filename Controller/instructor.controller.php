@@ -16,7 +16,49 @@ class InstructorController {
         $tiposInstructores = $this->model->getTiposInstructores();
         plantilla("crud/agregar_instructores.php", ['tiposInstructores' => $tiposInstructores]);
     }
+    public function eliminar()
+    {
+        if (isset($_POST['id'])) {
+            $instructorId = $_POST['id'];
     
+            try {
+                $resultado = $this->model->eliminarInstructor($instructorId);
+                if ($resultado['success']) {
+                    echo json_encode(['success' => true, 'message' => 'Instructor y registros relacionados eliminados exitosamente.']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => $resultado['message']]);
+                }
+            } catch (PDOException $e) {
+                echo json_encode(['success' => false, 'message' => 'Error al eliminar el instructor y registros relacionados: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID de instructor no proporcionado.']);
+        }
+    }
+       // Método para actualizar los datos del instructor
+       public function actualizar() {
+        if (isset($_POST['id'])) {
+            $id = $_POST['id'];
+            $nombre = $_POST['nombre'];
+            $apellido = $_POST['apellido'];
+            $tipo_id = $_POST['tipo']; // Asegúrate de que 'tipo' es el ID real del tipo de instructor
+            $perfil = $_POST['perfil'];
+
+            try {
+                $resultado = $this->model->actualizarInstructor($id, $nombre, $apellido, $tipo_id, $perfil);
+                if ($resultado['success']) {
+                    echo json_encode(['success' => true, 'message' => 'Instructor actualizado exitosamente.']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => $resultado['message']]);
+                }
+            } catch (PDOException $e) {
+                echo json_encode(['success' => false, 'message' => 'Error al actualizar el instructor: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID de instructor no proporcionado.']);
+        }
+    }
+
     public function guardar() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $nombre = $_POST['nombre'];

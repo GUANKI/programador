@@ -5,14 +5,44 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Generarcontroller {
+    public function inicio(){
+        $db = Database::Conectar();
+        $sql = "SELECT id, descripcion FROM tipos_instructores";
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        $tipos_instructores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $reporte = [];
+        if (!empty($_POST['mes']) && !empty($_POST['year']) && !empty($_POST['tipo_id'])) {
+            $mes = $_POST['mes'];
+            $year = $_POST['year'];
+            $tipo_id = $_POST['tipo_id'];
+
+            // Obtener datos filtrados de la base de datos
+            $sql = "SELECT CONCAT(i.nombre, ' ', i.apellido) as instructor_nombre, ti.descripcion as tipo_instructor, ha.hours as horas_acumuladas, ha.month, ha.year
+                    FROM horas_acumuladas ha
+                    JOIN instructores i ON ha.instructor_id = i.id
+                    JOIN tipos_instructores ti ON i.tipo_id = ti.id
+                    WHERE ha.month = :mes AND ha.year = :year AND i.tipo_id = :tipo_id
+                    ORDER BY ha.year ASC, ha.month ASC";
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':mes', $mes, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->bindParam(':tipo_id', $tipo_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $reporte = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        plantilla("generar/inicio.php", ['tipos_instructores' => $tipos_instructores, 'reporte' => $reporte]);
+    }
     public function excel() {
         // Crear una instancia de Spreadsheet
         $spreadsheet = new Spreadsheet();
 
         // Establecer propiedades globales del documento
         $spreadsheet->getProperties()
-                    ->setCreator("Tu Nombre")
-                    ->setLastModifiedBy("Tu Nombre")
+                    ->setCreator("Sena")
+                    ->setLastModifiedBy("Sena")
                     ->setTitle("Reporte Mensual de Horas de Instructores")
                     ->setSubject("Reporte Mensual de Horas de Instructores")
                     ->setDescription("Reporte mensual de horas de instructores");
